@@ -5,10 +5,12 @@ import java.util.*;
 public class Engine{
     public void animateText(String input, int delay){
         for(char c: input.toCharArray()){
-            System.out.println(c);
+            System.out.print(c);
             try{
                 Thread.sleep(delay);
             }catch(InterruptedException e){
+                Thread.currentThread().interrupt();
+                return;
             }
         }
         System.out.println();
@@ -34,6 +36,8 @@ public class Engine{
             try{
                 Thread.sleep(delay);
             }catch(InterruptedException e){
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
