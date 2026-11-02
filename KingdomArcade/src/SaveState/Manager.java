@@ -1,53 +1,40 @@
 package SaveState;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+import Game.GameState;
 
 public class Manager {
-    // king information
-    public String kingName;
-    public int KingAge, kingHealth;
-
-    // kingdom information
-    public String kingdomName;
-    public int currentDay, currentYear, kingdomReputation;
-
-    // kingdom resources
-    public int gold, food, treasury, army, wood, stone, iron;
-
-    // population and society
-    public int population, happiness, faith, stability, crimeRate, Unemployment;
-
-    // game Progress
-    public String gameDifficulty;
-    public int eventsCompleted, decisionMade, currentChapter;
-
+    GameState gameState = new GameState();
     // load function for game
-    public void loadKing(){
-        try{
+    public void loadKing() {
+        try {
             File file = new File("Resources/SaveLog1/King.txt");
 
             FileReader fileReader = new FileReader(file);
             BufferedReader reader = new BufferedReader(fileReader);
 
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 String[] data = line.split("=", 2);
 
                 data[0] = data[0].trim();
                 data[1] = data[1].trim();
 
-                switch (data[0]){
+                switch (data[0]) {
                     case "KING_NAME":
-                        kingName = data[1];
+                        gameState.kingName = data[1];
                         break;
                     case "KING_AGE":
-                        KingAge = Integer.parseInt(data[1]);
+                        gameState.KingAge = Integer.parseInt(data[1]);
                         break;
                     case "KING_HEALTH":
-                        kingHealth = Integer.parseInt(data[1]);
+                        gameState.kingHealth = Integer.parseInt(data[1]);
                         break;
                     default:
                         System.out.println("Error in data loading");
@@ -55,83 +42,83 @@ public class Manager {
             }
 
             reader.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Unable to locate the file");
         }
     }
 
-    public void loadKingdom(){
-        try{
+    public void loadKingdom() {
+        try {
             File file = new File("Resources/SaveLog1/Kingdom.txt");
 
             FileReader fileReader = new FileReader(file);
             BufferedReader reader = new BufferedReader(fileReader);
 
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 String[] data = line.split("=", 2);
 
                 data[0] = data[0].trim();
                 data[1] = data[1].trim();
 
-                switch (data[0]){
+                switch (data[0]) {
                     case "KINGDOM_NAME":
-                        kingdomName = data[1];
+                        gameState.kingdomName = data[1];
                         break;
                     case "CURRENT_YEAR":
-                        currentYear = Integer.parseInt(data[1]);
+                        gameState.currentYear = Integer.parseInt(data[1]);
                         break;
                     case "CURRENT_DAY":
-                        currentDay = Integer.parseInt(data[1]);
+                        gameState.currentDay = Integer.parseInt(data[1]);
                         break;
                     case "KINGDOM_REPUTATION":
-                        kingdomReputation = Integer.parseInt(data[1]);
+                        gameState.kingdomReputation = Integer.parseInt(data[1]);
                     default:
                         System.out.println("Error in data loading");
                 }
             }
 
             reader.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Unable to locate the file");
         }
     }
 
-    public void loadResources(){
-        try{
+    public void loadResources() {
+        try {
             File file = new File("Resources/SaveLog1/KingdomResources.txt");
 
             FileReader fileReader = new FileReader(file);
             BufferedReader reader = new BufferedReader(fileReader);
 
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 String[] data = line.split("=", 2);
 
                 data[0] = data[0].trim();
                 data[1] = data[1].trim();
 
-                switch (data[0]){
+                switch (data[0]) {
                     case "GOLD":
-                        gold = Integer.parseInt(data[1]);
+                        gameState.gold = Integer.parseInt(data[1]);
                         break;
                     case "FOOD":
-                        food = Integer.parseInt(data[1]);
+                        gameState.food = Integer.parseInt(data[1]);
                         break;
                     case "TREASURY":
-                        treasury = Integer.parseInt(data[1]);
+                        gameState.treasury = Integer.parseInt(data[1]);
                         break;
                     case "ARMY":
-                        army = Integer.parseInt(data[1]);
+                        gameState.army = Integer.parseInt(data[1]);
                         break;
                     case "WOOD":
-                        wood = Integer.parseInt(data[1]);
+                        gameState.wood = Integer.parseInt(data[1]);
                         break;
                     case "IRON":
-                        iron = Integer.parseInt(data[1]);
+                        gameState.iron = Integer.parseInt(data[1]);
                         break;
                     case "STONE":
-                        stone = Integer.parseInt(data[1]);
+                        gameState.stone = Integer.parseInt(data[1]);
                         break;
                     default:
                         System.out.println("Error in data loading");
@@ -139,43 +126,43 @@ public class Manager {
             }
 
             reader.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Unable to locate the file");
         }
     }
 
-    public void loadPopulationAndSociety(){
-        try{
+    public void loadPopulationAndSociety() {
+        try {
             File file = new File("Resources/SaveLog1/PopulationAndSociety.txt");
 
             FileReader fileReader = new FileReader(file);
             BufferedReader reader = new BufferedReader(fileReader);
 
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 String[] data = line.split("=", 2);
 
                 data[0] = data[0].trim();
                 data[1] = data[1].trim();
 
-                switch (data[0]){
+                switch (data[0]) {
                     case "POPULATION":
-                        population = Integer.parseInt(data[1]);
+                        gameState.population = Integer.parseInt(data[1]);
                         break;
                     case "HAPPINESS":
-                        happiness = Integer.parseInt(data[1]);
+                        gameState.happiness = Integer.parseInt(data[1]);
                         break;
                     case "FAITH":
-                        faith = Integer.parseInt(data[1]);
+                        gameState.faith = Integer.parseInt(data[1]);
                         break;
                     case "STABILITY":
-                        stability = Integer.parseInt(data[1]);
+                        gameState.stability = Integer.parseInt(data[1]);
                         break;
                     case "CRIME_RATE":
-                        crimeRate = Integer.parseInt(data[1]);
+                        gameState.crimeRate = Integer.parseInt(data[1]);
                         break;
                     case "UNEMPLOYMENT":
-                        Unemployment = Integer.parseInt(data[1]);
+                        gameState.Unemployment = Integer.parseInt(data[1]);
                         break;
                     default:
                         System.out.println("Error in data loading");
@@ -183,37 +170,37 @@ public class Manager {
             }
 
             reader.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Unable to locate the file");
         }
     }
 
-    public void loadGameProgress(){
-        try{
+    public void loadGameProgress() {
+        try {
             File file = new File("Resources/SaveLog1/GameStatus.txt");
 
             FileReader fileReader = new FileReader(file);
             BufferedReader reader = new BufferedReader(fileReader);
 
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 String[] data = line.split("=", 2);
 
                 data[0] = data[0].trim();
                 data[1] = data[1].trim();
 
-                switch (data[0]){
+                switch (data[0]) {
                     case "GAME_DIFFICULTY":
-                        gameDifficulty = data[1];
+                        gameState.gameDifficulty = data[1];
                         break;
                     case "EVENTS_COMPLETED":
-                        eventsCompleted = Integer.parseInt(data[1]);
+                        gameState.eventsCompleted = Integer.parseInt(data[1]);
                         break;
                     case "DECISION_MADE":
-                        decisionMade = Integer.parseInt(data[1]);
+                        gameState.decisionMade = Integer.parseInt(data[1]);
                         break;
                     case "CURRENT_CHAPTER":
-                        currentChapter = Integer.parseInt(data[1]);
+                        gameState.currentChapter = Integer.parseInt(data[1]);
                         break;
                     default:
                         System.out.println("Error in data loading");
@@ -221,8 +208,137 @@ public class Manager {
             }
 
             reader.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Unable to locate the file");
         }
+    }
+
+    public void loadGame() {
+        loadKing();
+        loadKingdom();
+        loadResources();
+        loadPopulationAndSociety();
+        loadGameProgress();
+    }
+
+    public void saveKingInfo() {
+        try {
+            File file = new File("Resources/SaveLog1/King.txt");
+
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+
+            writer.write("KING_NAME = " + gameState.kingName);
+            writer.newLine();
+            writer.write("KING_AGE = " + gameState.KingAge);
+            writer.newLine();
+            writer.write("KING_HEALTH = " + gameState.kingHealth);
+
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred file writing the file: " + e.getMessage());
+        }
+    }
+
+    public void saveKingdomInfo() {
+        try {
+            File file = new File("Resources/SaveLog1/Kingdom.txt");
+
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+
+            writer.write("KINGDOM_NAME = " + gameState.kingdomName);
+            writer.newLine();
+            writer.write("CURRENT_DAY = " + gameState.currentDay);
+            writer.newLine();
+            writer.write("CURRENT_YEAR = " + gameState.currentYear);
+            writer.newLine();
+            writer.write("KINGDOM_REPUTATION = " + gameState.kingdomReputation);
+
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred file writing the file: " + e.getMessage());
+        }
+    }
+
+    public void saveKingdomResourceInfo() {
+        try {
+            File file = new File("Resources/SaveLog1/KingdomResources.txt");
+
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+
+            writer.write("GOLD = " + gameState.gold);
+            writer.newLine();
+            writer.write("FOOD = " + gameState.food);
+            writer.newLine();
+            writer.write("TREASURY = " + gameState.treasury);
+            writer.newLine();
+            writer.write("ARMY = " + gameState.army);
+            writer.newLine();
+            writer.write("WOOD = " + gameState.wood);
+            writer.newLine();
+            writer.write("STONE = " + gameState.stone);
+            writer.newLine();
+            writer.write("IRON = " + gameState.iron);
+
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred file writing the file: " + e.getMessage());
+        }
+    }
+
+    public void savePopulationAndSocietyInfo() {
+        try {
+            File file = new File("Resources/SaveLog1/PopulationAndSocietyInfo.txt");
+
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+
+            writer.write("POPULATION = " + gameState.population);
+            writer.newLine();
+            writer.write("HAPPINESS = " + gameState.happiness);
+            writer.newLine();
+            writer.write("FAITH = " + gameState.faith);
+            writer.newLine();
+            writer.write("STABILITY = " + gameState.stability);
+            writer.newLine();
+            writer.write("CRIME_RATE = " + gameState.crimeRate);
+            writer.newLine();
+            writer.write("UNEMPLOYMENT = " + gameState.Unemployment);
+
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred file writing the file: " + e.getMessage());
+        }
+    }
+
+    public void saveGameStatusInfo() {
+        try {
+            File file = new File("Resources/SaveLog1/King.txt");
+
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+
+            writer.write("GAME_DIFFICULTY = " + gameState.gameDifficulty);
+            writer.newLine();
+            writer.write("EVENTS_COMPLETED = " + gameState.eventsCompleted);
+            writer.newLine();
+            writer.write("DECISION_MADE = " + gameState.decisionMade);
+            writer.newLine();
+            writer.write("CURRENT_CHAPTER = " + gameState.currentChapter);
+
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred file writing the file: " + e.getMessage());
+        }
+    }
+
+    public void saveGame(){
+        saveKingInfo();
+        saveKingdomInfo();
+        saveKingdomResourceInfo();
+        savePopulationAndSocietyInfo();
+        saveGameStatusInfo();
     }
 }
