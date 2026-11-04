@@ -120,6 +120,12 @@ public class Manager {
                     case "STONE":
                         gameState.stone = Integer.parseInt(data[1]);
                         break;
+                    case "MILITARY_MORALE":
+                        gameState.militaryMorale = Integer.parseInt(data[1]);
+                        break;
+                    case "WEAPONS":
+                        gameState.weapons = Integer.parseInt(data[1]);
+                        break;
                     default:
                         System.out.println("Error in data loading");
                 }
@@ -163,6 +169,9 @@ public class Manager {
                         break;
                     case "UNEMPLOYMENT":
                         gameState.Unemployment = Integer.parseInt(data[1]);
+                        break;
+                    case "PUBLIC_APPROVAL":
+                        gameState.publicApproval = Integer.parseInt(data[1]);
                         break;
                     default:
                         System.out.println("Error in data loading");
@@ -281,6 +290,10 @@ public class Manager {
             writer.write("STONE = " + gameState.stone);
             writer.newLine();
             writer.write("IRON = " + gameState.iron);
+            writer.newLine();
+            writer.write("MILITARY_MORALE = " + gameState.militaryMorale);
+            writer.newLine();
+            writer.write("WEAPONS = " + gameState.weapons);
 
             writer.close();
         } catch (IOException e) {
@@ -306,6 +319,8 @@ public class Manager {
             writer.write("CRIME_RATE = " + gameState.crimeRate);
             writer.newLine();
             writer.write("UNEMPLOYMENT = " + gameState.Unemployment);
+            writer.newLine();
+            writer.write("PUBLIC_APPROVAL = " + gameState.publicApproval);
 
             writer.close();
         } catch (IOException e) {
