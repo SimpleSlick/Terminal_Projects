@@ -3,234 +3,118 @@ package SaveState;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 
 import Game.GameState;
+import JSON.JSONFileReader;
 
 public class Manager {
     GameState gameState = new GameState();
+    JSONFileReader fileReader = new JSONFileReader();
+
     // load function for game
-    public void loadKing() {
-        try {
-            File file = new File("Resources/SaveLog1/King.txt");
+    private void loadKing(String path) throws IOException {
+        String FILE_PATH = path;
+        String content = fileReader.readFile(FILE_PATH);
 
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
+        Map<String, Object> gameData = fileReader.parse(content);
+        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("kingInfo");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split("=", 2);
-
-                data[0] = data[0].trim();
-                data[1] = data[1].trim();
-
-                switch (data[0]) {
-                    case "KING_NAME":
-                        gameState.kingName = data[1];
-                        break;
-                    case "KING_AGE":
-                        gameState.KingAge = Integer.parseInt(data[1]);
-                        break;
-                    case "KING_HEALTH":
-                        gameState.kingHealth = Integer.parseInt(data[1]);
-                        break;
-                    default:
-                        System.out.println("Error in data loading");
-                }
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Unable to locate the file");
+        if(selectedData == null){
+            throw new IllegalStateException("Data not found");
         }
+
+        gameState.kingName = (String) selectedData.get("KING_NAME");
+        gameState.KingAge = (Integer) selectedData.get("KING_AGE");
+        gameState.kingHealth = (Integer) selectedData.get("KING_HEALTH");
     }
 
-    public void loadKingdom() {
-        try {
-            File file = new File("Resources/SaveLog1/Kingdom.txt");
+    private void loadKingdom(String path) throws IOException{
+        String FILE_PATH = "Resources/saveFile1/gameInfo.json";
+        String content = fileReader.readFile(FILE_PATH);
 
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
+        Map<String, Object> gameData = fileReader.parse(content);
+        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("kingdomInfo");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split("=", 2);
-
-                data[0] = data[0].trim();
-                data[1] = data[1].trim();
-
-                switch (data[0]) {
-                    case "KINGDOM_NAME":
-                        gameState.kingdomName = data[1];
-                        break;
-                    case "CURRENT_YEAR":
-                        gameState.currentYear = Integer.parseInt(data[1]);
-                        break;
-                    case "CURRENT_DAY":
-                        gameState.currentDay = Integer.parseInt(data[1]);
-                        break;
-                    case "KINGDOM_REPUTATION":
-                        gameState.kingdomReputation = Integer.parseInt(data[1]);
-                    default:
-                        System.out.println("Error in data loading");
-                }
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Unable to locate the file");
+        if(selectedData == null){
+            throw new IllegalStateException("Data not found");
         }
+
+        gameState.kingName = (String) selectedData.get("KINGDOM_NAME");
+        gameState.currentDay = (Integer) selectedData.get("CURRENT_DAY");
+        gameState.currentYear = (Integer) selectedData.get("CURRENT_YEAR");
+        gameState.kingdomReputation = (Integer) selectedData.get("KINGDOM_REPUTATION");
     }
 
-    public void loadResources() {
-        try {
-            File file = new File("Resources/SaveLog1/KingdomResources.txt");
+    private void loadResources(String path) throws IOException {
+        String FILE_PATH = path;
+        String content = fileReader.readFile(FILE_PATH);
 
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
+        Map<String, Object> gameData = fileReader.parse(content);
+        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("resourcesInfo");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split("=", 2);
-
-                data[0] = data[0].trim();
-                data[1] = data[1].trim();
-
-                switch (data[0]) {
-                    case "GOLD":
-                        gameState.gold = Integer.parseInt(data[1]);
-                        break;
-                    case "FOOD":
-                        gameState.food = Integer.parseInt(data[1]);
-                        break;
-                    case "TREASURY":
-                        gameState.treasury = Integer.parseInt(data[1]);
-                        break;
-                    case "ARMY":
-                        gameState.army = Integer.parseInt(data[1]);
-                        break;
-                    case "WOOD":
-                        gameState.wood = Integer.parseInt(data[1]);
-                        break;
-                    case "IRON":
-                        gameState.iron = Integer.parseInt(data[1]);
-                        break;
-                    case "STONE":
-                        gameState.stone = Integer.parseInt(data[1]);
-                        break;
-                    case "MILITARY_MORALE":
-                        gameState.militaryMorale = Integer.parseInt(data[1]);
-                        break;
-                    case "WEAPONS":
-                        gameState.weapons = Integer.parseInt(data[1]);
-                        break;
-                    default:
-                        System.out.println("Error in data loading");
-                }
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Unable to locate the file");
+        if(selectedData == null){
+            throw new IllegalStateException("Data not found");
         }
+
+        gameState.gold = (Integer) selectedData.get("GOLD");
+        gameState.food = (Integer) selectedData.get("FOOD");
+        gameState.treasury = (Integer) selectedData.get("TREASURY");
+        gameState.army = (Integer) selectedData.get("ARMY");
+        gameState.wood = (Integer) selectedData.get("WOOD");
+        gameState.stone = (Integer) selectedData.get("STONE");
+        gameState.iron = (Integer) selectedData.get("IRON");
+        gameState.militaryMorale = (Integer) selectedData.get("MILITARY_MORALE");
+        gameState.weapons = (Integer) selectedData.get("WEAPONS");
     }
 
-    public void loadPopulationAndSociety() {
-        try {
-            File file = new File("Resources/SaveLog1/PopulationAndSociety.txt");
+    private void loadPopulationAndSociety(String path) throws IOException {
+        String FILE_PATH = path;
+        String content = fileReader.readFile(FILE_PATH);
 
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
+        Map<String, Object> gameData = fileReader.parse(content);
+        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("populationAndSocietyInfo");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split("=", 2);
-
-                data[0] = data[0].trim();
-                data[1] = data[1].trim();
-
-                switch (data[0]) {
-                    case "POPULATION":
-                        gameState.population = Integer.parseInt(data[1]);
-                        break;
-                    case "HAPPINESS":
-                        gameState.happiness = Integer.parseInt(data[1]);
-                        break;
-                    case "FAITH":
-                        gameState.faith = Integer.parseInt(data[1]);
-                        break;
-                    case "STABILITY":
-                        gameState.stability = Integer.parseInt(data[1]);
-                        break;
-                    case "CRIME_RATE":
-                        gameState.crimeRate = Integer.parseInt(data[1]);
-                        break;
-                    case "UNEMPLOYMENT":
-                        gameState.Unemployment = Integer.parseInt(data[1]);
-                        break;
-                    case "PUBLIC_APPROVAL":
-                        gameState.publicApproval = Integer.parseInt(data[1]);
-                        break;
-                    default:
-                        System.out.println("Error in data loading");
-                }
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Unable to locate the file");
+        if(selectedData == null){
+            throw new IllegalStateException("Data not found");
         }
+
+        gameState.population = (Integer) selectedData.get("POPULATION");
+        gameState.happiness = (Integer) selectedData.get("HAPPINESS");
+        gameState.faith = (Integer) selectedData.get("FAITH");
+        gameState.stability = (Integer) selectedData.get("STABILITY");
+        gameState.crimeRate = (Integer) selectedData.get("CRIME_RATE");
+        gameState.Unemployment = (Integer) selectedData.get("UNEMPLOYMENT");
+        gameState.publicApproval = (Integer) selectedData.get("PUBLIC_APPROVAL");
     }
 
-    public void loadGameProgress() {
-        try {
-            File file = new File("Resources/SaveLog1/GameStatus.txt");
+    private void loadGameProgress(String path) throws IOException {
+        String FILE_PATH = path;
+        String content = fileReader.readFile(FILE_PATH);
 
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
+        Map<String, Object> gameData = fileReader.parse(content);
+        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("gameProgressInfo");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split("=", 2);
-
-                data[0] = data[0].trim();
-                data[1] = data[1].trim();
-
-                switch (data[0]) {
-                    case "GAME_DIFFICULTY":
-                        gameState.gameDifficulty = data[1];
-                        break;
-                    case "EVENTS_COMPLETED":
-                        gameState.eventsCompleted = Integer.parseInt(data[1]);
-                        break;
-                    case "DECISION_MADE":
-                        gameState.decisionMade = Integer.parseInt(data[1]);
-                        break;
-                    case "CURRENT_CHAPTER":
-                        gameState.currentChapter = Integer.parseInt(data[1]);
-                        break;
-                    default:
-                        System.out.println("Error in data loading");
-                }
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Unable to locate the file");
+        if(selectedData == null){
+            throw new IllegalStateException("Data not found");
         }
+
+        gameState.gameDifficulty = (String) selectedData.get("GAME_DIFFICULTY");
+        gameState.eventsCompleted = (Integer) selectedData.get("EVENTS_COMPLETED");
+        gameState.decisionMade = (Integer) selectedData.get("DECISION_MADE");
+        gameState.currentChapter = (Integer) selectedData.get("CURRENT_CHAPTER");
     }
 
-    public void loadGame() {
-        loadKing();
-        loadKingdom();
-        loadResources();
-        loadPopulationAndSociety();
-        loadGameProgress();
+    public void loadGame(String path) throws IOException{
+        loadKing(path);
+        loadKingdom(path);
+        loadResources(path);
+        loadPopulationAndSociety(path);
+        loadGameProgress(path);
     }
 
-    public void saveKingInfo() {
+    private void saveKingInfo() {
         try {
             File file = new File("Resources/SaveLog1/King.txt");
 
@@ -249,7 +133,7 @@ public class Manager {
         }
     }
 
-    public void saveKingdomInfo() {
+    private void saveKingdomInfo() {
         try {
             File file = new File("Resources/SaveLog1/Kingdom.txt");
 
@@ -270,7 +154,7 @@ public class Manager {
         }
     }
 
-    public void saveKingdomResourceInfo() {
+    private void saveKingdomResourceInfo() {
         try {
             File file = new File("Resources/SaveLog1/KingdomResources.txt");
 
@@ -301,7 +185,7 @@ public class Manager {
         }
     }
 
-    public void savePopulationAndSocietyInfo() {
+    private void savePopulationAndSocietyInfo() {
         try {
             File file = new File("Resources/SaveLog1/PopulationAndSocietyInfo.txt");
 
@@ -328,7 +212,7 @@ public class Manager {
         }
     }
 
-    public void saveGameStatusInfo() {
+    private void saveGameStatusInfo() {
         try {
             File file = new File("Resources/SaveLog1/King.txt");
 
