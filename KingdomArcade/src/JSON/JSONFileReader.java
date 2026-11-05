@@ -20,7 +20,7 @@ public class JSONFileReader {
     }
 
     // parsing method;
-    public Map<String, Object> parise(String json){
+    public Map<String, Object> parse(String json){
         this.json = json;
         this.index = 0;
 
@@ -33,6 +33,120 @@ public class JSONFileReader {
         }
 
         return result;
+    }
+
+    // parse json objects
+    private Map<String, Object> parseObject(){
+        Map<String, Object> data = new LinkedHashMap<>();
+
+        expect('{');
+        skipWhiteSpace();
+
+        if(currentChar() == '}'){
+            index++;
+            return data;
+        }
+
+        while(index < json.length()){
+            skipWhiteSpace();
+
+            String key = parseString();
+
+            skipWhiteSpace();
+            expect(':');
+
+            Object value = parseValue();
+            data.put(key, value);
+            skipWhiteSpace();
+
+            if(currentChar() == '}'){
+                index++;
+                return data;
+            }
+
+            expect(',');
+        }
+        throw new IllegalArgumentException("Unclosed JSON object");
+    }
+
+    private Object parseValue() {
+        skipWhiteSpace();
+
+        char current = currentChar();
+
+        if(current == '{'){
+            return parseObject();
+        }
+
+        if(current == '"'){
+            return parseString();
+        }
+
+        if(current == '-' || Character.isDigit(current)){
+            return parseInteger();
+        }
+
+        throw new IllegalArgumentException("Unsupported JSON value");
+    }
+
+    private Integer parseInteger() {
+        int start = index;
+
+        if(currentChar() == '-'){
+            index++;
+        }
+
+        while(index < json.length() && Character.isDigit(currentChar())){
+            index++;
+        }
+
+        String number = json.substring(start, index);
+
+        try{
+            return Integer.parseInt(number);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid Integer: " + number);
+        }
+    }
+
+    private String parseString() {
+        expect('"');
+
+        StringBuilder result = new StringBuilder();
+
+        while(index <= json.length()){
+            char current = json.charAt(index++);
+
+            if(current == '"'){
+                return result.toString();
+            }
+
+            if(current == '\\'){
+                if(index >= json.length()){
+                    throw new IllegalArgumentException("Invalid escape sequence");
+                }
+
+                char escaped = json.charAt(index++);
+
+                switch (escaped){
+                    case '"': result.append('"'); break;
+                    case '\\': result.append('\\'); break;
+                    case '/': result.append('/'); break;
+                    case 'n': result.append('\n'); break;
+                    case 't': result.append('\t'); break;
+                    case 'r': result.append('\r'); break;
+                    case 'b': result.append('\b'); break;
+                    case 'f': result.append('\f'); break;
+
+                    default:
+                        throw new IllegalArgumentException("Invalid escape Sequence");
+                }
+            }else{
+                result.append(current);
+            }
+        }
+
+        throw new IllegalArgumentException("Unclosed JSON String");
     }
 
     private void skipWhiteSpace(){
@@ -51,7 +165,7 @@ public class JSONFileReader {
 
     private void expect(char expected){
         if(currentChar() != expected){
-            throw new IllegalArgumentException("Expected '" + expected "' at position: " + index);
+            throw new IllegalArgumentException("Expected '" + expected + "' at position: " + index);
         }
 
         index++;
