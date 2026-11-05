@@ -1,12 +1,13 @@
 package Game;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Game {
     GameState gameState = new GameState();
     Scanner scanner = new Scanner(System.in);
 
-    public void mainMenu(){
+    public void mainMenu() throws IOException{
         int choice;
 
         do {
@@ -21,6 +22,7 @@ public class Game {
             System.out.println("=".repeat(30));
             System.out.print("Enter your choice: ");
             choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -40,7 +42,7 @@ public class Game {
         }while(choice != 3);
     }
 
-    public void newGame(){
+    private void newGame() throws IOException {
         System.out.println("What would be the King's Name?");
         System.out.print("-> ");
         gameState.kingName = scanner.nextLine().trim();
