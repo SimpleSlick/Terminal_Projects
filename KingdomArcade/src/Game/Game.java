@@ -7,6 +7,10 @@ public class Game {
     GameState gameState = new GameState();
     Scanner scanner = new Scanner(System.in);
 
+    public Game() throws IOException {
+        mainMenu();
+    }
+
     public void mainMenu() throws IOException{
         int choice;
 
