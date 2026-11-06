@@ -63,7 +63,9 @@ public class JSONFileWriter {
 
     // determine value type
     private void formatValue(Object value, StringBuilder result, int indentation){
-        if(value instanceof String){
+        if(value == null){
+            result.append("null");
+        } else if(value instanceof String){
             result.append("\"").append(escapeString((String) value)).append("\"");
         } else if(value instanceof Integer){
             result.append(value);
@@ -72,6 +74,8 @@ public class JSONFileWriter {
             Map<String, Object> nestedMap = (Map<String, Object>) value;
 
             formatObject(nestedMap, result, indentation);
+        }else if(value instanceof Boolean){
+            result.append(value);
         }else{
             throw new IllegalArgumentException("Unsupported Data Types: " + value.getClass().getName());
         }

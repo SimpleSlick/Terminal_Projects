@@ -86,6 +86,21 @@ public class JSONFileReader {
             return parseInteger();
         }
 
+        if(json.startsWith("true", index)){
+            index += 4;
+            return true;
+        }
+
+        if(json.startsWith("false", index)){
+            index += 5;
+            return false;
+        }
+
+        if(json.startsWith("null", index)){
+            index += 4;
+            return null;
+        }
+
         throw new IllegalArgumentException("Unsupported JSON value");
     }
 

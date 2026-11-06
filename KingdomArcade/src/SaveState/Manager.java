@@ -109,7 +109,7 @@ public class Manager {
         loadGameProgress(path);
     }
 
-    private void saveKingInfo(String path) throws IOException{
+    private Map<String, Object> saveKingInfo() throws IOException{
         Map<String, Object> kingInfo = new LinkedHashMap<>();
 
         kingInfo.put("KING_NAME", gameState.kingName);
@@ -119,10 +119,10 @@ public class Manager {
         Map<String, Object> gameData = new LinkedHashMap<>();
         gameData.put("kingInfo", kingInfo);
 
-        writer.writeFile(path, gameData);
+        return gameData;
     }
 
-    private void saveKingdomInfo(String path) throws IOException{
+    private Map<String, Object> saveKingdomInfo() throws IOException{
         Map<String, Object> kingdomInfo = new LinkedHashMap<>();
 
         kingdomInfo.put("KINGDOM_NAME", gameState.kingdomName);
@@ -133,10 +133,10 @@ public class Manager {
         Map<String, Object> gameData = new LinkedHashMap<>();
         gameData.put("kingdomInfo", kingdomInfo);
 
-        writer.writeFile(path, gameData);
+        return gameData;
     }
 
-    private void saveKingdomResourceInfo(String path) throws IOException{
+    private Map<String, Object> saveKingdomResourceInfo() throws IOException{
         Map<String, Object> kingdomResourceInfo = new LinkedHashMap<>();
 
         kingdomResourceInfo.put("GOLD", gameState.gold);
@@ -152,10 +152,10 @@ public class Manager {
         Map<String, Object> gameData = new LinkedHashMap<>();
         gameData.put("kingdomResourceInfo", kingdomResourceInfo);
 
-        writer.writeFile(path, gameData);
+        return gameData;
     }
 
-    private void savePopulationAndSocietyInfo(String path) throws IOException{
+    private Map<String, Object> savePopulationAndSocietyInfo() throws IOException{
         Map<String, Object> populationAndSocietyInfo = new LinkedHashMap<>();
 
         populationAndSocietyInfo.put("POPULATION", gameState.population);
@@ -169,10 +169,10 @@ public class Manager {
         Map<String, Object> gameData = new LinkedHashMap<>();
         gameData.put("populationAndSocietyInfo", populationAndSocietyInfo);
 
-        writer.writeFile(path, gameData);
+        return gameData;
     }
 
-    private void saveGameStatusInfo(String path) throws IOException{
+    private Map<String, Object> saveGameStatusInfo() throws IOException{
         Map<String, Object> gameStatusInfo = new LinkedHashMap<>();
 
         gameStatusInfo.put("GAME_DIFFICULTY", gameState.gameDifficulty);
@@ -183,14 +183,19 @@ public class Manager {
         Map<String, Object> gameData = new LinkedHashMap<>();
         gameData.put("gameStatusInfo", gameStatusInfo);
 
-        writer.writeFile(path, gameData);
+
+        return gameData;
     }
 
     public void saveGame(String path) throws IOException{
-        saveKingInfo(path);
-        saveKingdomInfo(path);
-        saveKingdomResourceInfo(path);
-        savePopulationAndSocietyInfo(path);
-        saveGameStatusInfo(path);
+        Map<String, Object> gameData = new LinkedHashMap<>();
+
+        gameData.putAll(saveKingInfo());
+        gameData.putAll(saveKingdomInfo());
+        gameData.putAll(saveKingdomResourceInfo());
+        gameData.putAll(savePopulationAndSocietyInfo());
+        gameData.putAll(saveGameStatusInfo());
+
+        writer.writeFile(path, gameData);
     }
 }
