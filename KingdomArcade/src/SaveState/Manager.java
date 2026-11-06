@@ -1,22 +1,21 @@
 package SaveState;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import Game.GameState;
 import JSON.JSONFileReader;
+import JSON.JSONFileWriter;
 
 public class Manager {
     GameState gameState = new GameState();
     JSONFileReader fileReader = new JSONFileReader();
+    JSONFileWriter writer = new JSONFileWriter();
 
     // load function for game
     private void loadKing(String path) throws IOException {
-        String FILE_PATH = path;
-        String content = fileReader.readFile(FILE_PATH);
+        String content = fileReader.readFile(path);
 
         Map<String, Object> gameData = fileReader.parse(content);
         Map<String, Object> selectedData = (Map<String, Object>) gameData.get("kingInfo");
@@ -31,8 +30,7 @@ public class Manager {
     }
 
     private void loadKingdom(String path) throws IOException{
-        String FILE_PATH = "Resources/saveFile1/gameInfo.json";
-        String content = fileReader.readFile(FILE_PATH);
+        String content = fileReader.readFile(path);
 
         Map<String, Object> gameData = fileReader.parse(content);
         Map<String, Object> selectedData = (Map<String, Object>) gameData.get("kingdomInfo");
@@ -48,8 +46,7 @@ public class Manager {
     }
 
     private void loadResources(String path) throws IOException {
-        String FILE_PATH = path;
-        String content = fileReader.readFile(FILE_PATH);
+        String content = fileReader.readFile(path);
 
         Map<String, Object> gameData = fileReader.parse(content);
         Map<String, Object> selectedData = (Map<String, Object>) gameData.get("resourcesInfo");
@@ -70,8 +67,7 @@ public class Manager {
     }
 
     private void loadPopulationAndSociety(String path) throws IOException {
-        String FILE_PATH = path;
-        String content = fileReader.readFile(FILE_PATH);
+        String content = fileReader.readFile(path);
 
         Map<String, Object> gameData = fileReader.parse(content);
         Map<String, Object> selectedData = (Map<String, Object>) gameData.get("populationAndSocietyInfo");
@@ -90,11 +86,10 @@ public class Manager {
     }
 
     private void loadGameProgress(String path) throws IOException {
-        String FILE_PATH = path;
-        String content = fileReader.readFile(FILE_PATH);
+        String content = fileReader.readFile(path);
 
         Map<String, Object> gameData = fileReader.parse(content);
-        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("gameProgressInfo");
+        Map<String, Object> selectedData = (Map<String, Object>) gameData.get("gameStatusInfo");
 
         if(selectedData == null){
             throw new IllegalStateException("Data not found");
@@ -114,130 +109,88 @@ public class Manager {
         loadGameProgress(path);
     }
 
-    private void saveKingInfo() {
-        try {
-            File file = new File("Resources/SaveLog1/King.txt");
+    private void saveKingInfo(String path) throws IOException{
+        Map<String, Object> kingInfo = new LinkedHashMap<>();
 
-            FileWriter fileWriter = new FileWriter(file);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        kingInfo.put("KING_NAME", gameState.kingName);
+        kingInfo.put("KING_AGE", gameState.KingAge);
+        kingInfo.put("KING_HEALTH", gameState.kingHealth);
 
-            writer.write("KING_NAME = " + gameState.kingName);
-            writer.newLine();
-            writer.write("KING_AGE = " + gameState.KingAge);
-            writer.newLine();
-            writer.write("KING_HEALTH = " + gameState.kingHealth);
+        Map<String, Object> gameData = new LinkedHashMap<>();
+        gameData.put("kingInfo", kingInfo);
 
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred file writing the file: " + e.getMessage());
-        }
+        writer.writeFile(path, gameData);
     }
 
-    private void saveKingdomInfo() {
-        try {
-            File file = new File("Resources/SaveLog1/Kingdom.txt");
+    private void saveKingdomInfo(String path) throws IOException{
+        Map<String, Object> kingdomInfo = new LinkedHashMap<>();
 
-            FileWriter fileWriter = new FileWriter(file);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        kingdomInfo.put("KINGDOM_NAME", gameState.kingdomName);
+        kingdomInfo.put("CURRENT_DAY", gameState.currentDay);
+        kingdomInfo.put("CURRENT_YEAR", gameState.currentYear);
+        kingdomInfo.put("KINGDOM_REPUTATION", gameState.kingdomReputation);
 
-            writer.write("KINGDOM_NAME = " + gameState.kingdomName);
-            writer.newLine();
-            writer.write("CURRENT_DAY = " + gameState.currentDay);
-            writer.newLine();
-            writer.write("CURRENT_YEAR = " + gameState.currentYear);
-            writer.newLine();
-            writer.write("KINGDOM_REPUTATION = " + gameState.kingdomReputation);
+        Map<String, Object> gameData = new LinkedHashMap<>();
+        gameData.put("kingdomInfo", kingdomInfo);
 
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred file writing the file: " + e.getMessage());
-        }
+        writer.writeFile(path, gameData);
     }
 
-    private void saveKingdomResourceInfo() {
-        try {
-            File file = new File("Resources/SaveLog1/KingdomResources.txt");
+    private void saveKingdomResourceInfo(String path) throws IOException{
+        Map<String, Object> kingdomResourceInfo = new LinkedHashMap<>();
 
-            FileWriter fileWriter = new FileWriter(file);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        kingdomResourceInfo.put("GOLD", gameState.gold);
+        kingdomResourceInfo.put("FOOD", gameState.food);
+        kingdomResourceInfo.put("TREASURY", gameState.treasury);
+        kingdomResourceInfo.put("ARMY", gameState.army);
+        kingdomResourceInfo.put("WOOD", gameState.wood);
+        kingdomResourceInfo.put("STONE", gameState.stone);
+        kingdomResourceInfo.put("IRON", gameState.iron);
+        kingdomResourceInfo.put("MILITARY_MORALE", gameState.militaryMorale);
+        kingdomResourceInfo.put("WEAPONS", gameState.weapons);
 
-            writer.write("GOLD = " + gameState.gold);
-            writer.newLine();
-            writer.write("FOOD = " + gameState.food);
-            writer.newLine();
-            writer.write("TREASURY = " + gameState.treasury);
-            writer.newLine();
-            writer.write("ARMY = " + gameState.army);
-            writer.newLine();
-            writer.write("WOOD = " + gameState.wood);
-            writer.newLine();
-            writer.write("STONE = " + gameState.stone);
-            writer.newLine();
-            writer.write("IRON = " + gameState.iron);
-            writer.newLine();
-            writer.write("MILITARY_MORALE = " + gameState.militaryMorale);
-            writer.newLine();
-            writer.write("WEAPONS = " + gameState.weapons);
+        Map<String, Object> gameData = new LinkedHashMap<>();
+        gameData.put("kingdomResourceInfo", kingdomResourceInfo);
 
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred file writing the file: " + e.getMessage());
-        }
+        writer.writeFile(path, gameData);
     }
 
-    private void savePopulationAndSocietyInfo() {
-        try {
-            File file = new File("Resources/SaveLog1/PopulationAndSocietyInfo.txt");
+    private void savePopulationAndSocietyInfo(String path) throws IOException{
+        Map<String, Object> populationAndSocietyInfo = new LinkedHashMap<>();
 
-            FileWriter fileWriter = new FileWriter(file);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        populationAndSocietyInfo.put("POPULATION", gameState.population);
+        populationAndSocietyInfo.put("HAPPINESS", gameState.happiness);
+        populationAndSocietyInfo.put("FAITH", gameState.faith);
+        populationAndSocietyInfo.put("STABILITY", gameState.stability);
+        populationAndSocietyInfo.put("CRIME_RATE", gameState.crimeRate);
+        populationAndSocietyInfo.put("UNEMPLOYMENT", gameState.Unemployment);
+        populationAndSocietyInfo.put("PUBLIC_APPROVAL", gameState.publicApproval);
 
-            writer.write("POPULATION = " + gameState.population);
-            writer.newLine();
-            writer.write("HAPPINESS = " + gameState.happiness);
-            writer.newLine();
-            writer.write("FAITH = " + gameState.faith);
-            writer.newLine();
-            writer.write("STABILITY = " + gameState.stability);
-            writer.newLine();
-            writer.write("CRIME_RATE = " + gameState.crimeRate);
-            writer.newLine();
-            writer.write("UNEMPLOYMENT = " + gameState.Unemployment);
-            writer.newLine();
-            writer.write("PUBLIC_APPROVAL = " + gameState.publicApproval);
+        Map<String, Object> gameData = new LinkedHashMap<>();
+        gameData.put("populationAndSocietyInfo", populationAndSocietyInfo);
 
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred file writing the file: " + e.getMessage());
-        }
+        writer.writeFile(path, gameData);
     }
 
-    private void saveGameStatusInfo() {
-        try {
-            File file = new File("Resources/SaveLog1/King.txt");
+    private void saveGameStatusInfo(String path) throws IOException{
+        Map<String, Object> gameStatusInfo = new LinkedHashMap<>();
 
-            FileWriter fileWriter = new FileWriter(file);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        gameStatusInfo.put("GAME_DIFFICULTY", gameState.gameDifficulty);
+        gameStatusInfo.put("EVENTS_COMPLETED", gameState.eventsCompleted);
+        gameStatusInfo.put("DECISION_MADE", gameState.decisionMade);
+        gameStatusInfo.put("CURRENT_CHAPTER", gameState.currentChapter);
 
-            writer.write("GAME_DIFFICULTY = " + gameState.gameDifficulty);
-            writer.newLine();
-            writer.write("EVENTS_COMPLETED = " + gameState.eventsCompleted);
-            writer.newLine();
-            writer.write("DECISION_MADE = " + gameState.decisionMade);
-            writer.newLine();
-            writer.write("CURRENT_CHAPTER = " + gameState.currentChapter);
+        Map<String, Object> gameData = new LinkedHashMap<>();
+        gameData.put("gameStatusInfo", gameStatusInfo);
 
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred file writing the file: " + e.getMessage());
-        }
+        writer.writeFile(path, gameData);
     }
 
-    public void saveGame(){
-        saveKingInfo();
-        saveKingdomInfo();
-        saveKingdomResourceInfo();
-        savePopulationAndSocietyInfo();
-        saveGameStatusInfo();
+    public void saveGame(String path) throws IOException{
+        saveKingInfo(path);
+        saveKingdomInfo(path);
+        saveKingdomResourceInfo(path);
+        savePopulationAndSocietyInfo(path);
+        saveGameStatusInfo(path);
     }
 }
