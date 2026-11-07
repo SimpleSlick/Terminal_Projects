@@ -2,10 +2,12 @@ package Game;
 
 import java.io.IOException;
 import java.util.Scanner;
+import SaveState.RegistryManagement;
 
 public class Game {
     GameState gameState = new GameState();
     Scanner scanner = new Scanner(System.in);
+    RegistryManagement management = new RegistryManagement();
 
     public Game() throws IOException {
         mainMenu();
@@ -35,6 +37,7 @@ public class Game {
                     break;
                 case 2:
                     System.out.println("Continue Game Selected");
+                    continueGame();
                     break;
                 case 3:
                     System.out.println("Application Exits");
@@ -87,6 +90,27 @@ public class Game {
                 gameState.gameDifficulty = "Demon";
                 gameState.assignValues();
                 break;
+        }
+    }
+
+    public void continueGame() throws IOException{
+        management.displaySlots();
+
+        System.out.print("Enter the operation to perform (LOAD, SAVE, DELETE): ");
+        int choice = scanner.nextInt();
+
+        System.out.print("Enter the slot number (1-10): ");
+        int slotNumber = scanner.nextInt();
+
+        switch (choice){
+            case 1:
+                management.handleSlot(slotNumber, RegistryManagement.slotOperation.LOAD);
+                break;
+            case 2:
+                management.handleSlot(slotNumber, RegistryManagement.slotOperation.SAVE);
+                break;
+            case 3:
+                management.handleSlot(slotNumber, RegistryManagement.slotOperation.DELETE);
         }
     }
 }
