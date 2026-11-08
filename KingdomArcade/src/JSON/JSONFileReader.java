@@ -78,6 +78,10 @@ public class JSONFileReader {
             return parseObject();
         }
 
+        if(current == '['){
+            return parseArray();
+        }
+
         if(current == '"'){
             return parseString();
         }
@@ -162,6 +166,34 @@ public class JSONFileReader {
         }
 
         throw new IllegalArgumentException("Unclosed JSON String");
+    }
+
+    private List<Object> parseArray(){
+        List<Object> data = new ArrayList<>();
+
+        expect('[');
+        skipWhiteSpace();
+
+        if(currentChar() == ']'){
+            index++;
+            return data;
+        }
+
+        while(index < json.length()){
+            Object value = parseValue();
+            data.add(value);
+
+            skipWhiteSpace();
+
+            if(currentChar() == ']'){
+                index++;
+                return data;
+            }
+
+            expect(',');
+        }
+
+        throw new IllegalArgumentException("Unclosed JSON Array");
     }
 
     private void skipWhiteSpace(){
