@@ -114,7 +114,27 @@ public class RegistryManagement {
         writeRegistry(registry, REGISTRY_PATH);
     }
 
-    private void deleteSlot(int slot){
+    private void deleteSlot(int slot) throws IOException{
+        Map<String, Object> registry = readRegistry();
+        String slotName = "Slot" + slot;
+
+        Map<String, Object> selectedData = (Map<String, Object>) registry.get(slotName);
+
+        if(selectedData == null || !Boolean.TRUE.equals(selectedData.get("occupied"))){
+            System.out.println("The slot is empty");
+            return;
+        }
+
+        String filePath = (String) selectedData.get("filePath");
+
+        manager.clearData(filePath);
+
+        Map<String, Object> emptyData = new LinkedHashMap<>();
+        emptyData.put("occupied", false);
+
+        registry.put(slotName, emptyData);
+        writeRegistry(registry, REGISTRY_PATH);
+        System.out.println("Saved Slot Deleted Successfully");
     }
 
     private void writeRegistry(Map<String, Object> registry, String path) throws IOException{

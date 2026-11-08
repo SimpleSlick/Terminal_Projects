@@ -1,6 +1,8 @@
 package SaveState;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -43,6 +45,7 @@ public class Manager {
         gameState.currentDay = (Integer) selectedData.get("CURRENT_DAY");
         gameState.currentYear = (Integer) selectedData.get("CURRENT_YEAR");
         gameState.kingdomReputation = (Integer) selectedData.get("KINGDOM_REPUTATION");
+        gameState.kingdomStrength = (Integer) selectedData.get("KINGDOM_STRENGTH");
     }
 
     private void loadResources(String path) throws IOException {
@@ -129,6 +132,7 @@ public class Manager {
         kingdomInfo.put("CURRENT_DAY", gameState.currentDay);
         kingdomInfo.put("CURRENT_YEAR", gameState.currentYear);
         kingdomInfo.put("KINGDOM_REPUTATION", gameState.kingdomReputation);
+        kingdomInfo.put("KINGDOM_STRENGTH", gameState.kingdomStrength);
 
         Map<String, Object> gameData = new LinkedHashMap<>();
         gameData.put("kingdomInfo", kingdomInfo);
@@ -197,5 +201,11 @@ public class Manager {
         gameData.putAll(saveGameStatusInfo());
 
         writer.writeFile(path, gameData);
+    }
+
+    public void clearData(String filePath) throws IOException{
+        Path path = Path.of(filePath);
+
+        Files.deleteIfExists(path);
     }
 }
