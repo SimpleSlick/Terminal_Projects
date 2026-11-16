@@ -3,6 +3,7 @@ package Game;
 import java.io.IOException;
 import java.util.Scanner;
 import SaveState.RegistryManagement;
+import ENUMS.slotOperation;
 
 public class Game {
     GameState gameState = new GameState();
@@ -32,11 +33,9 @@ public class Game {
 
             switch (choice) {
                 case 1:
-                    System.out.println("New Game Selected");
                     newGame();
                     break;
                 case 2:
-                    System.out.println("Continue Game Selected");
                     continueGame();
                     break;
                 case 3:
@@ -93,24 +92,50 @@ public class Game {
         }
     }
 
-    public void continueGame() throws IOException{
+    private void continueGame() throws IOException{
         management.displaySlots();
 
-        System.out.print("Enter the operation to perform (LOAD, SAVE, DELETE): ");
-        int choice = scanner.nextInt();
+        int choice;
+        do{
+            System.out.print("Enter the operation (1. LOAD, 2. SAVE, 3. DELETE): ");
 
-        System.out.print("Enter the slot number (1-10): ");
-        int slotNumber = scanner.nextInt();
+            while(!scanner.hasNextInt()){
+                System.out.println("Invalid input! Enter a number.");
+                scanner.next();
+                System.out.print("Enter the operation: ");
+            }
+
+            choice = scanner.nextInt();
+            if(choice < 1 || choice > 3){
+                System.out.println("Invalid Operation! Chose between 1 and 3");
+            }
+        }while(choice < 1 || choice > 3);
+
+        int slotNumber;
+        do{
+            System.out.print("Enter the Slot Number (1-10): ");
+
+            while(!scanner.hasNextInt()){
+                System.out.println("Invalid input! Enter a number");
+                scanner.next();
+                System.out.print("Enter the Slot Number (1-10): ");
+            }
+
+            slotNumber = scanner.nextInt();
+            if(slotNumber < 1 || slotNumber > management.MAX_SLOTS){
+                System.out.println("Invalid slot! Chose between 1 and 10 (inclusive)");
+            }
+        }while(slotNumber < 1 || slotNumber > management.MAX_SLOTS);
 
         switch (choice){
             case 1:
-                management.handleSlot(slotNumber, RegistryManagement.slotOperation.LOAD);
+                management.handleSlot(slotNumber, slotOperation.LOAD);
                 break;
             case 2:
-                management.handleSlot(slotNumber, RegistryManagement.slotOperation.SAVE);
+                management.handleSlot(slotNumber, slotOperation.SAVE);
                 break;
             case 3:
-                management.handleSlot(slotNumber, RegistryManagement.slotOperation.DELETE);
+                management.handleSlot(slotNumber, slotOperation.DELETE);
         }
     }
 }

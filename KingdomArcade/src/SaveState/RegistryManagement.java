@@ -6,12 +6,9 @@ import java.util.Map;
 
 import JSON.*;
 import Game.GameState;
+import ENUMS.slotOperation;
 
 public class RegistryManagement {
-    public enum slotOperation{
-        SAVE, LOAD, DELETE
-    }
-
     private final JSONFileReader reader = new JSONFileReader();
     private final JSONFileWriter writer = new JSONFileWriter();
     private final Manager manager = new Manager();
