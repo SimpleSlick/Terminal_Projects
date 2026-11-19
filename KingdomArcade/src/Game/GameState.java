@@ -25,6 +25,10 @@ public class GameState {
     public String gameDifficulty;
     public int eventsCompleted, decisionMade, currentChapter;
 
+    // Temporary Storage for Difference Showing
+    public int oldGold, oldFood, oldTreasury, oldArmy, oldWood, oldStone, oldIron, oldMorale, oldReputation, oldStrength;
+    public int oldWeapons, oldPopulation, oldHappiness, oldFaith, oldStability, oldCrimeRate, oldUnemployment, oldApproval;
+
     JSONFileReader jsonFileReader = new JSONFileReader();
     protected EnumSet<ConsequenceType> modifiedVariables = EnumSet.noneOf(ConsequenceType.class);
 
@@ -69,6 +73,8 @@ public class GameState {
 
     // basic variable assigning
     public void applyConsequences(Map<String, Object> consequencesData){
+        modifiedVariables.clear();
+
         for(Map.Entry<String, Object> entry: consequencesData.entrySet()){
             String key = entry.getKey();
             int value = (Integer) entry.getValue();
@@ -112,7 +118,27 @@ public class GameState {
                     break;
             }
         }
-
         calculateConsequence.calculateImpacts(modifiedVariables);
+    }
+
+    public void captureSnapShot(){
+        this.oldFood = this.food;
+        this.oldTreasury = this.treasury;
+        this.oldGold = this.gold;
+        this.oldArmy = this.army;
+        this.oldWood = this.wood;
+        this.oldStone = this.stone;
+        this.oldMorale = this.militaryMorale;
+        this.oldIron = this.iron;
+        this.oldReputation = this.kingdomReputation;
+        this.oldStrength = this.kingdomStrength;
+        this.oldWeapons = this.weapons;
+        this.oldPopulation = this.population;
+        this.oldFaith = this.faith;
+        this.oldHappiness = this.happiness;
+        this.oldStability = this.stability;
+        this.oldCrimeRate = this.crimeRate;
+        this.oldApproval = this.publicApproval;
+        this.oldUnemployment = this.Unemployment;
     }
 }
