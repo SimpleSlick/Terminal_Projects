@@ -10,12 +10,59 @@ import Engine.Engine;
 import Game.GameState;
 
 public class EventManager {
-    private final GameState gameState = new GameState();
+    private final GameState gameState;
     private final JSONFileReader fileReader = new JSONFileReader();
     private final Engine engine = new Engine();
-    private final String path = "Resources/GameplayData/Events.json";
     private final int WIDTH = 70;
     private final Scanner scanner = new Scanner(System.in);
+
+    public EventManager(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    private String getCurrentDayFilePath() {
+        // Example: Resources/GameplayData/Chapter1/Day1.json
+        return String.format("Resources/GameplayData/%s/Chapter%d/Day%d.json", gameState.gameDifficulty, gameState.currentChapter, gameState.currentDay);
+    }
+
+    public void playDay() throws IOException {
+        // Take snapshot at the start of the day
+        gameState.captureSnapShot();
+
+        String currentFile = getCurrentDayFilePath();
+        Map<String, Object> dayData;
+
+        try {
+            dayData = fileReader.parse(fileReader.readFile(currentFile));
+        } catch (IOException e) {
+            System.out.println("No events found for this day (" + currentFile + "). Ending chapter...");
+
+            return;
+        }
+
+        List<Object> events = (List<Object>) dayData.get("dayEvents");
+        int totalEvents = events.size();
+
+        engine.animateCentered("---CHAPTER " + gameState.currentChapter + " | DAY " + gameState.currentDay + " ---", WIDTH, 20);
+        System.out.println();
+        int currentEventIndex;
+
+        // Loop through the events
+        for (int i = 0; i < totalEvents; i++) {
+            currentEventIndex = i + 1;
+            Map<String, Object> eventData = (Map<String, Object>) events.get(i);
+            showEvent(eventData, currentEventIndex, totalEvents);
+        }
+
+        // Show the summary at the end of the day
+        System.out.println("\n The Day has ended.");
+        System.out.println(Consequence());
+
+        // Increment Day
+        gameState.currentDay++;
+        System.out.println("\nPress Enter to Continue");
+        scanner.nextLine();
+    }
 
     protected void showHeader() throws IOException {
         engine.animateDivider(WIDTH, 10, true);
@@ -24,12 +71,12 @@ public class EventManager {
         System.out.println();
     }
 
-    protected void showChoices(List<Object> choices){
+    protected void showChoices(List<Object> choices) {
         engine.animateDivider(WIDTH, 15, false);
         engine.animateCentered("YOUR CHOICES", WIDTH, 40);
         engine.animateDivider(WIDTH, 15, false);
 
-        for(Object choice: choices){
+        for (Object choice : choices) {
             Map<String, Object> choiceData = (Map<String, Object>) choice;
 
             int choiceID = (Integer) choiceData.get("choiceId");
@@ -42,37 +89,35 @@ public class EventManager {
         }
     }
 
-    private int selectChoice(int total_choice){
+    private int selectChoice(int total_choice) {
         int choice;
-        while(true){
+        while (true) {
             System.out.print("Enter your decision: ");
 
-            if(scanner.hasNextInt()){
+            if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
 
-                if(choice >= 1 && choice <= total_choice){
+                if (choice >= 1 && choice <= total_choice) {
                     gameState.decisionMade += 1;
                     return choice;
                 }
 
                 System.out.println("Invalid choice! Please enter a number between 1 and " + total_choice + ".");
-            }else{
+            } else {
                 System.out.println("Invalid input! Please enter a number");
                 scanner.next();
             }
         }
     }
 
-    public void showEvent(int eventNumber) throws IOException{
-        Map<String, Object> eventData = fileReader.parse(fileReader.readFile(path));
-        String event = "event" + eventNumber;
-
-        Map<String, Object> SelectedEventData = (Map<String, Object>) eventData.get(event);
+    public void showEvent(Map<String, Object> SelectedEventData, int currentEventNum, int totalEvents) throws IOException {
         List<Object> choices = (List<Object>) SelectedEventData.get("choices");
 
         showHeader();
+        engine.animateCentered("EVENT " + currentEventNum + " of " + totalEvents, WIDTH, 20);
         engine.animateCentered((String) SelectedEventData.get("eventName"), WIDTH, 35);
         System.out.println();
+
         engine.animateText((String) SelectedEventData.get("description"), 40, WIDTH);
 
         showChoices(choices);
@@ -82,5 +127,45 @@ public class EventManager {
         Map<String, Object> consequences = (Map<String, Object>) choiceData.get("consequences");
 
         gameState.applyConsequences(consequences);
+
+        System.out.println(" \nYour decision is been recorded");
+        System.out.println();
+    }
+
+    protected String Consequence() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n=== DAY").append(gameState.currentDay).append(" SUMMARY ===\n");
+
+        sb.append(formatStatLine("Food", gameState.oldFood, gameState.food));
+        sb.append(formatStatLine("Gold", gameState.oldGold, gameState.gold));
+        sb.append(formatStatLine("Treasury", gameState.oldTreasury, gameState.treasury));
+        sb.append(formatStatLine("Happiness", gameState.oldHappiness, gameState.happiness));
+        sb.append(formatStatLine("Population", gameState.oldPopulation, gameState.population));
+        sb.append(formatStatLine("Army", gameState.oldArmy, gameState.army));
+        sb.append(formatStatLine("Wood", gameState.oldWood, gameState.wood));
+        sb.append(formatStatLine("Stone", gameState.oldStone, gameState.stone));
+        sb.append(formatStatLine("Iron", gameState.oldIron, gameState.iron));
+        sb.append(formatStatLine("Weapons", gameState.oldWeapons, gameState.weapons));
+        sb.append(formatStatLine("Stability", gameState.oldStability, gameState.stability));
+        sb.append(formatStatLine("Faith", gameState.oldFaith, gameState.faith));
+        sb.append(formatStatLine("Crime Rate", gameState.oldCrimeRate, gameState.crimeRate));
+        sb.append(formatStatLine("Unemployment", gameState.oldUnemployment, gameState.Unemployment));
+        sb.append(formatStatLine("Public Approval", gameState.oldApproval, gameState.publicApproval));
+        sb.append(formatStatLine("Kingdom Reputation", gameState.oldReputation, gameState.kingdomReputation));
+        sb.append(formatStatLine("Kingdom Strength", gameState.oldStrength, gameState.kingdomStrength));
+        sb.append(formatStatLine("Military Morale", gameState.oldMorale, gameState.militaryMorale));
+
+        return sb.toString();
+    }
+
+    private String formatStatLine(String statName, int oldValue, int value) {
+        int diff = value - oldValue;
+
+        if (diff == 0) {
+            return ""; // if nothing changed, stat hidden
+        }
+
+        String sign = diff > 0 ? "+" : "";
+        return String.format("- %s: %d -> %d (%s%d)\n", statName, oldValue, value, sign, diff);
     }
 }
