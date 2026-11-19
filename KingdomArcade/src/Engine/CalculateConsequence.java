@@ -1,8 +1,9 @@
-package Game;
+package Engine;
 
 import java.util.EnumSet;
 
 import ENUMS.ConsequenceType;
+import Game.GameState;
 
 public class CalculateConsequence {
     private final GameState gameState;
