@@ -13,7 +13,7 @@ public class EventManager {
     private final GameState gameState;
     private final JSONFileReader fileReader = new JSONFileReader();
     private final Engine engine = new Engine();
-    private final int WIDTH = 70;
+    public final int WIDTH = 70;
     private final Scanner scanner = new Scanner(System.in);
 
     public EventManager(GameState gameState) {
@@ -52,11 +52,12 @@ public class EventManager {
             currentEventIndex = i + 1;
             Map<String, Object> eventData = (Map<String, Object>) events.get(i);
             showEvent(eventData, currentEventIndex, totalEvents);
+            gameState.eventsCompleted++;
         }
 
         // Show the summary at the end of the day
         System.out.println("\n The Day has ended.");
-        System.out.println(Consequence());
+        System.out.println(Consequence(false));
 
         // Increment Day
         gameState.currentDay++;
@@ -132,9 +133,14 @@ public class EventManager {
         System.out.println();
     }
 
-    protected String Consequence() {
+    public String Consequence(boolean isPhase) {
         StringBuilder sb = new StringBuilder();
+
+        if(isPhase){
+            sb.append("\n=== ").append(gameState.currentPhase).append(" IMPACT ===\n");
+        }else{
         sb.append("\n=== DAY").append(gameState.currentDay).append(" SUMMARY ===\n");
+        }
 
         sb.append(formatStatLine("Food", gameState.oldFood, gameState.food));
         sb.append(formatStatLine("Gold", gameState.oldGold, gameState.gold));

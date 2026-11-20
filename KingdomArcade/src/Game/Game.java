@@ -8,7 +8,7 @@ import ENUMS.slotOperation;
 public class Game {
     GameState gameState = new GameState();
     Scanner scanner = new Scanner(System.in);
-    RegistryManagement management = new RegistryManagement();
+    RegistryManagement management = new RegistryManagement(gameState);
 
     public Game() throws IOException {
         mainMenu();

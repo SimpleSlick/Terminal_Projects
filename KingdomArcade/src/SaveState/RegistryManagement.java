@@ -11,19 +11,21 @@ import ENUMS.slotOperation;
 public class RegistryManagement {
     private final JSONFileReader reader = new JSONFileReader();
     private final JSONFileWriter writer = new JSONFileWriter();
-    private final Manager manager = new Manager();
-    private final GameState gameState = new GameState();
+    private GameState gameState;
+    private final Manager manager = new Manager(gameState);
 
     public final int MAX_SLOTS = 10;
 
     private static final String REGISTRY_PATH = "Resources/SaveFiles/SaveRegistry.json";
 
+    public RegistryManagement(GameState gameState){
+        this.gameState = gameState;
+    }
+
     private Map<String, Object> readRegistry() throws IOException {
         String content = reader.readFile(REGISTRY_PATH);
 
-        Map<String, Object> saveData = reader.parse(content);
-
-        return saveData;
+        return reader.parse(content);
     }
 
     public void displaySlots() throws IOException{

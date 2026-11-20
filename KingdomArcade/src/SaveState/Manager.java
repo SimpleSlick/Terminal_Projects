@@ -11,9 +11,13 @@ import JSON.JSONFileReader;
 import JSON.JSONFileWriter;
 
 public class Manager {
-    GameState gameState = new GameState();
+    GameState gameState;
     JSONFileReader fileReader = new JSONFileReader();
     JSONFileWriter writer = new JSONFileWriter();
+
+    public Manager(GameState gameState){
+        this.gameState = gameState;
+    }
 
     // load function for game
     private void loadKing(String path) throws IOException {

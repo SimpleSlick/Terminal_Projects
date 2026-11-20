@@ -1,7 +1,9 @@
 package Game;
 
 import ENUMS.ConsequenceType;
+import Engine.CalculateConsequence;
 import JSON.JSONFileReader;
+import ENUMS.ActivityType;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Map;
@@ -28,6 +30,9 @@ public class GameState {
     // Temporary Storage for Difference Showing
     public int oldGold, oldFood, oldTreasury, oldArmy, oldWood, oldStone, oldIron, oldMorale, oldReputation, oldStrength;
     public int oldWeapons, oldPopulation, oldHappiness, oldFaith, oldStability, oldCrimeRate, oldUnemployment, oldApproval;
+
+    // Phase
+    public ActivityType currentPhase;
 
     JSONFileReader jsonFileReader = new JSONFileReader();
     protected EnumSet<ConsequenceType> modifiedVariables = EnumSet.noneOf(ConsequenceType.class);
