@@ -33,6 +33,8 @@ public class GameState {
 
     // Phase
     public ActivityType currentPhase;
+    public int phaseDurationLeft = 0;
+    public Map<String, Object> activePhaseCost = null;
 
     JSONFileReader jsonFileReader = new JSONFileReader();
     protected EnumSet<ConsequenceType> modifiedVariables = EnumSet.noneOf(ConsequenceType.class);
@@ -145,5 +147,47 @@ public class GameState {
         this.oldCrimeRate = this.crimeRate;
         this.oldApproval = this.publicApproval;
         this.oldUnemployment = this.Unemployment;
+    }
+
+    public String Consequence(boolean isPhase) {
+        StringBuilder sb = new StringBuilder();
+
+        if(isPhase){
+            sb.append("\n=== ").append(this.currentPhase).append(" IMPACT ===\n");
+        }else{
+            sb.append("\n=== DAY").append(this.currentDay).append(" SUMMARY ===\n");
+        }
+
+        sb.append(formatStatLine("Food", this.oldFood, this.food));
+        sb.append(formatStatLine("Gold", this.oldGold, this.gold));
+        sb.append(formatStatLine("Treasury", this.oldTreasury, this.treasury));
+        sb.append(formatStatLine("Happiness", this.oldHappiness, this.happiness));
+        sb.append(formatStatLine("Population", this.oldPopulation, this.population));
+        sb.append(formatStatLine("Army", this.oldArmy, this.army));
+        sb.append(formatStatLine("Wood", this.oldWood, this.wood));
+        sb.append(formatStatLine("Stone", this.oldStone, this.stone));
+        sb.append(formatStatLine("Iron", this.oldIron, this.iron));
+        sb.append(formatStatLine("Weapons", this.oldWeapons, this.weapons));
+        sb.append(formatStatLine("Stability", this.oldStability, this.stability));
+        sb.append(formatStatLine("Faith", this.oldFaith, this.faith));
+        sb.append(formatStatLine("Crime Rate", this.oldCrimeRate, this.crimeRate));
+        sb.append(formatStatLine("Unemployment", this.oldUnemployment, this.Unemployment));
+        sb.append(formatStatLine("Public Approval", this.oldApproval, this.publicApproval));
+        sb.append(formatStatLine("Kingdom Reputation", this.oldReputation, this.kingdomReputation));
+        sb.append(formatStatLine("Kingdom Strength", this.oldStrength, this.kingdomStrength));
+        sb.append(formatStatLine("Military Morale", this.oldMorale, this.militaryMorale));
+
+        return sb.toString();
+    }
+
+    private String formatStatLine(String statName, int oldValue, int value) {
+        int diff = value - oldValue;
+
+        if (diff == 0) {
+            return ""; // if nothing changed, stat hidden
+        }
+
+        String sign = diff > 0 ? "+" : "";
+        return String.format("- %s: %d -> %d (%s%d)\n", statName, oldValue, value, sign, diff);
     }
 }

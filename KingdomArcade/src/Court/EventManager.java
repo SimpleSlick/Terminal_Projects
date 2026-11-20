@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import JSON.JSONFileReader;
-import Engine.Engine;
+import Engine.*;
 import Game.GameState;
 
 public class EventManager {
@@ -15,9 +15,11 @@ public class EventManager {
     private final Engine engine = new Engine();
     public final int WIDTH = 70;
     private final Scanner scanner = new Scanner(System.in);
+    private final ActivityConsequence activity;
 
     public EventManager(GameState gameState) {
         this.gameState = gameState;
+        this.activity = new ActivityConsequence(gameState);
     }
 
     private String getCurrentDayFilePath() {
@@ -28,6 +30,7 @@ public class EventManager {
     public void playDay() throws IOException {
         // Take snapshot at the start of the day
         gameState.captureSnapShot();
+        activity.applyDailyPhase(gameState);
 
         String currentFile = getCurrentDayFilePath();
         Map<String, Object> dayData;
@@ -57,7 +60,7 @@ public class EventManager {
 
         // Show the summary at the end of the day
         System.out.println("\n The Day has ended.");
-        System.out.println(Consequence(false));
+        System.out.println(gameState.Consequence(false));
 
         // Increment Day
         gameState.currentDay++;
@@ -127,51 +130,23 @@ public class EventManager {
         Map<String, Object> choiceData = (Map<String, Object>) choices.get(selectedChoice - 1);
         Map<String, Object> consequences = (Map<String, Object>) choiceData.get("consequences");
 
-        gameState.applyConsequences(consequences);
+        if (consequences != null) {
+            gameState.applyConsequences(consequences);
+        }
+
+        if(choiceData.containsKey("phaseTrigger") && choiceData.containsKey("phaseCost")){
+            String phaseName = (String) choiceData.get("phaseTrigger");
+            Map<String, Object> phaseCost = (Map<String, Object>) choiceData.get("phaseCost");
+
+            gameState.currentPhase = ENUMS.ActivityType.valueOf(phaseName);
+            gameState.activePhaseCost = phaseCost;
+
+            gameState.phaseDurationLeft = phaseCost.containsKey("duration") ? (Integer) phaseCost.get("duration") : 1;
+
+            System.out.println("\n-> [" + phaseName + " Phase started! It will last for " + gameState.phaseDurationLeft + " days.]");
+        }
 
         System.out.println(" \nYour decision is been recorded");
         System.out.println();
-    }
-
-    public String Consequence(boolean isPhase) {
-        StringBuilder sb = new StringBuilder();
-
-        if(isPhase){
-            sb.append("\n=== ").append(gameState.currentPhase).append(" IMPACT ===\n");
-        }else{
-        sb.append("\n=== DAY").append(gameState.currentDay).append(" SUMMARY ===\n");
-        }
-
-        sb.append(formatStatLine("Food", gameState.oldFood, gameState.food));
-        sb.append(formatStatLine("Gold", gameState.oldGold, gameState.gold));
-        sb.append(formatStatLine("Treasury", gameState.oldTreasury, gameState.treasury));
-        sb.append(formatStatLine("Happiness", gameState.oldHappiness, gameState.happiness));
-        sb.append(formatStatLine("Population", gameState.oldPopulation, gameState.population));
-        sb.append(formatStatLine("Army", gameState.oldArmy, gameState.army));
-        sb.append(formatStatLine("Wood", gameState.oldWood, gameState.wood));
-        sb.append(formatStatLine("Stone", gameState.oldStone, gameState.stone));
-        sb.append(formatStatLine("Iron", gameState.oldIron, gameState.iron));
-        sb.append(formatStatLine("Weapons", gameState.oldWeapons, gameState.weapons));
-        sb.append(formatStatLine("Stability", gameState.oldStability, gameState.stability));
-        sb.append(formatStatLine("Faith", gameState.oldFaith, gameState.faith));
-        sb.append(formatStatLine("Crime Rate", gameState.oldCrimeRate, gameState.crimeRate));
-        sb.append(formatStatLine("Unemployment", gameState.oldUnemployment, gameState.Unemployment));
-        sb.append(formatStatLine("Public Approval", gameState.oldApproval, gameState.publicApproval));
-        sb.append(formatStatLine("Kingdom Reputation", gameState.oldReputation, gameState.kingdomReputation));
-        sb.append(formatStatLine("Kingdom Strength", gameState.oldStrength, gameState.kingdomStrength));
-        sb.append(formatStatLine("Military Morale", gameState.oldMorale, gameState.militaryMorale));
-
-        return sb.toString();
-    }
-
-    private String formatStatLine(String statName, int oldValue, int value) {
-        int diff = value - oldValue;
-
-        if (diff == 0) {
-            return ""; // if nothing changed, stat hidden
-        }
-
-        String sign = diff > 0 ? "+" : "";
-        return String.format("- %s: %d -> %d (%s%d)\n", statName, oldValue, value, sign, diff);
     }
 }
