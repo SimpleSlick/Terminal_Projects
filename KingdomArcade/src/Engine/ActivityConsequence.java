@@ -53,8 +53,8 @@ public class ActivityConsequence {
         gameState.phaseDurationLeft--;
         if (gameState.phaseDurationLeft <= 0) {
             engine.animateCentered("The " + gameState.currentPhase + " phase has concluded naturally.", WIDTH, 25);
-            gameState.activePhaseCost = null;
-            gameState.currentPhase = ActivityType.NONE;
+            boolean isNatural = true;
+            resolveAndEndPhase(gameState, isNatural);
         }
 
         engine.animateText(gameState.Consequence(true), 30, WIDTH);
@@ -161,8 +161,7 @@ public class ActivityConsequence {
         }
 
         if (phaseFailed) {
-            state.currentPhase = ActivityType.NONE;
-            state.activePhaseCost = null;
+            resolveAndEndPhase(state, false);
         }
 
         consequence.clampAll();
@@ -254,8 +253,8 @@ public class ActivityConsequence {
 
             // abandon sites look terrible -> affects reputation
             state.kingdomReputation -= 2;
-            state.currentPhase = ActivityType.NONE;
-            state.activePhaseCost = null;
+
+            resolveAndEndPhase(state, false);
         }
 
         consequence.clampAll();
@@ -354,8 +353,7 @@ public class ActivityConsequence {
             // kingdom looks incompetent
             state.kingdomReputation -= 3;
 
-            state.currentPhase = ActivityType.NONE;
-            state.activePhaseCost = null;
+            resolveAndEndPhase(state, false);
         }
 
         consequence.clampAll();
@@ -467,8 +465,7 @@ public class ActivityConsequence {
             int lostExplorers = 1 + (int) (Math.random() * 3);
             state.population -= lostExplorers;
 
-            state.currentPhase = ActivityType.NONE;
-            state.activePhaseCost = null;
+            resolveAndEndPhase(state, false);
         }
 
         consequence.clampAll();
@@ -505,8 +502,8 @@ public class ActivityConsequence {
         } else {
             state.kingdomReputation -= 5;
             state.happiness -= 3;
-            state.currentPhase = ActivityType.NONE;
-            state.activePhaseCost = null;
+
+            resolveAndEndPhase(state, false);
         }
 
         consequence.clampAll();
@@ -571,8 +568,7 @@ public class ActivityConsequence {
             state.publicApproval -= 3;
             state.kingdomReputation -= 2; // Foreign nations see the kingdom as bankrupt
 
-            state.currentPhase = ActivityType.NONE;
-            state.activePhaseCost = null;
+            resolveAndEndPhase(state, false);
         }
 
         consequence.clampAll();
@@ -632,5 +628,14 @@ public class ActivityConsequence {
                 default:
                     return 0;
             }
+        }
+
+        private void resolveAndEndPhase(GameState state, boolean Natural){
+            new PhaseResolution(state).resolvePhase(state, Natural);
+
+            state.activePhaseCost = null;
+            state.currentPhase = ActivityType.NONE;
+            state.phaseTotalDuration = 0;
+            state.phaseDurationLeft = 0;
         }
     }

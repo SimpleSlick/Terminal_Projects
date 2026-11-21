@@ -13,8 +13,6 @@ public class CalculateConsequence {
     }
 
     public void calculateImpacts(EnumSet<ConsequenceType> modifiedVariables) {
-        // We use a loop to apply impacts. 
-        // Note: We process the primary variables (Happiness, Army, Food, etc.)
         for (ConsequenceType variable : modifiedVariables) {
             switch (variable) {
                 case HAPPINESS:
@@ -140,13 +138,13 @@ public class CalculateConsequence {
             gameState.Unemployment = Math.max(0, gameState.Unemployment - 2);
             gameState.kingdomReputation += 1;
         } else if (totalResourceDiff < 0) {
-            // Resources spent -> Less materials for the people
+            // Resources spent -> Fewer materials for the people
             gameState.stability -= 1;
             gameState.Unemployment += 1;
         }
     }
 
-    private void clampAll() {
+    public void clampAll() {
         gameState.faith = Math.clamp(gameState.faith, 0, 100);
         gameState.stability = Math.clamp(gameState.stability, 0, 100);
         gameState.publicApproval = Math.clamp(gameState.publicApproval, 0, 100);
@@ -165,6 +163,7 @@ public class CalculateConsequence {
         gameState.army = Math.max(0, gameState.army);
         gameState.food = Math.max(0, gameState.food);
         gameState.gold = Math.max(0, gameState.gold);
+        gameState.treasury = Math.max(0, gameState.treasury);
         gameState.population = Math.max(0, gameState.population);
     }
 }

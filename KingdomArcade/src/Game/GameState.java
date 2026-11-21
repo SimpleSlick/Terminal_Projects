@@ -33,7 +33,7 @@ public class GameState {
 
     // Phase
     public ActivityType currentPhase;
-    public int phaseDurationLeft = 0;
+    public int phaseDurationLeft = 0, phaseTotalDuration = 0;
     public Map<String, Object> activePhaseCost = null;
 
     JSONFileReader jsonFileReader = new JSONFileReader();
@@ -73,6 +73,7 @@ public class GameState {
         this.currentDay = (Integer) selectedData.get("currentDay");
         this.currentYear = (Integer) selectedData.get("currentYear");
         this.kingdomReputation = (Integer) selectedData.get("kingdomReputation");
+        this.kingdomStrength = (Integer) selectedData.get("kingdomStrength");
 
         this.eventsCompleted = (Integer) selectedData.get("eventsCompleted");
         this.currentChapter = (Integer) selectedData.get("currentChapter");

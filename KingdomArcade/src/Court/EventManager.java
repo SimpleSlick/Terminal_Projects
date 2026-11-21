@@ -142,6 +142,7 @@ public class EventManager {
             gameState.activePhaseCost = phaseCost;
 
             gameState.phaseDurationLeft = phaseCost.containsKey("duration") ? (Integer) phaseCost.get("duration") : 1;
+            gameState.phaseTotalDuration = gameState.phaseDurationLeft;
 
             System.out.println("\n-> [" + phaseName + " Phase started! It will last for " + gameState.phaseDurationLeft + " days.]");
         }
