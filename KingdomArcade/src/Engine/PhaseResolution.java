@@ -47,50 +47,56 @@ public class PhaseResolution {
     private void resolveWar(GameState state, int impact, boolean isNatural){
         engine.animateText("\n=== WAR RESOLUTION ===\n", 25, WIDTH);
 
-        boolean isVictory = false;
-
-        if(isNatural){
-            // 50% chance of win or lose, even after natural end
-            isVictory = Math.random() < 0.5;
-        }else{
-            isVictory = false;
-        }
+        // not sure about the victory
+        boolean isVictory = isNatural && Math.random() < 0.5;
 
         int constantValue = 100 + (int)(Math.random() * 151);  // 100 to 250
         int absoluteImpact = Math.abs(impact);
-        int rawEffect = Math.min((absoluteImpact * constantValue) / 100, LIMIT_VALUE);
-        int percentAffect = (int)(rawEffect * 0.2245); // 22.45%
+        int rawAffect = Math.min((absoluteImpact * constantValue) / 100, LIMIT_VALUE);
+        int percentageAffect = (int)(rawAffect * 0.2245); // 22.45%
 
         int sign = isVictory ? 1 : -1;
+        int finalResourceImpact = sign * rawAffect;
+        int finalSocialImpact = sign * percentageAffect;
 
-        int finalResourceAffect = sign * rawEffect;
-        int finalSocialAffect = sign * percentAffect;
+        int rawCasualties = 0;
+        int percentageCasualties = 0;
 
-        // Resources
-        state.gold = Math.max(0, state.gold + finalResourceAffect);
-        state.stone = Math.max(0, state.stone + finalResourceAffect);
-        state.wood = Math.max(0, state.wood + finalResourceAffect);
-        state.iron = Math.max(0, state.iron + finalResourceAffect);
-        state.weapons = Math.max(0, state.weapons + finalResourceAffect);
-        state.treasury = Math.max(0, state.treasury + (finalResourceAffect / 3));
+        if(Math.random() < 0.651){
+            rawCasualties = 30 + (int)(Math.random() * 101); // 30 to 100
+            percentageAffect = (int) (rawCasualties * 0.2245); // 22.45%
+        }
 
-        // population and army
-        state.population = Math.max(0, state.population + (int)(finalResourceAffect / 3.5));
-        state.army = Math.max(0, state.army + (isVictory ? (rawEffect / 4) + 4 : -((rawEffect / 4) + 4)));
+        // handle resources
+        state.gold = Math.max(0, state.gold + finalResourceImpact);
+        state.stone = Math.max(0, state.stone + finalResourceImpact);
+        state.wood = Math.max(0, state.wood + finalResourceImpact);
+        state.iron = Math.max(0, state.iron + finalResourceImpact);
+        state.wood = Math.max(0, state.wood + finalResourceImpact);
+        state.treasury = Math.max(0, state.treasury + (finalResourceImpact / 3));
 
-        // percentage stats
-        state.happiness = Math.clamp(state.happiness + finalSocialAffect, 0, 100);
-        state.faith = Math.clamp(state.faith + finalSocialAffect, 0, 100);
-        state.stability = Math.clamp(state.stability + finalSocialAffect, 0, 100);
-        state.publicApproval = Math.clamp(state.publicApproval + finalSocialAffect, 0, 100);
-        state.militaryMorale = Math.clamp(state.militaryMorale + finalSocialAffect, 0, 100);
-        state.kingdomStrength = Math.clamp(state.kingdomStrength + finalSocialAffect, 0, 100);
-        state.kingdomReputation = Math.clamp(state.kingdomReputation + finalSocialAffect, 0, 100);
-        state.kingHealth = Math.clamp(state.kingHealth + (finalSocialAffect / 2), 0, 100);
+        // handle population and army
+        int popChange = (isVictory ? (int)(finalResourceImpact / 3.5) : 0) - rawCasualties;
+        state.population = Math.max(0, state.population - popChange);
 
-        // in war, victory lowers the crime Rate and unemployment, defaet raises them
-        state.crimeRate = Math.clamp(state.crimeRate - finalSocialAffect, 0, 100);
-        state.Unemployment = Math.clamp(state.Unemployment - finalSocialAffect, 0, 100);
+        // army loss are double if it's a defeat
+        int armyLoss = isVictory ? rawCasualties : rawCasualties * 2;
+        state.army = Math.max(0, state.army - armyLoss);
+
+        int totalSocialChange = finalSocialImpact - Math.abs(percentageCasualties);
+
+        state.happiness = Math.clamp(state.happiness + totalSocialChange, 0, 100);
+        state.faith = Math.clamp(state.faith + totalSocialChange, 0, 100);
+        state.stability = Math.clamp(state.stability + totalSocialChange, 0, 100);
+        state.publicApproval = Math.clamp(state.publicApproval + totalSocialChange, 0, 100);
+        state.militaryMorale = Math.clamp(state.militaryMorale + totalSocialChange, 0, 100);
+        state.kingdomStrength = Math.clamp(state.kingdomStrength + totalSocialChange, 0, 100);
+        state.kingdomReputation = Math.clamp(state.kingdomReputation + totalSocialChange, 0, 100);
+        state.kingHealth = Math.clamp(state.kingHealth + (totalSocialChange / 2), 0, 100);
+
+        // crime rate and unemployment increases when there are casualties
+        state.crimeRate = Math.clamp(state.crimeRate - finalSocialImpact + Math.abs(percentageCasualties), 0, 100);
+        state.Unemployment = Math.clamp(state.Unemployment - finalSocialImpact + Math.abs(percentageCasualties), 0, 100);
 
         consequence.clampAll();
     }
