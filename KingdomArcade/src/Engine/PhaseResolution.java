@@ -34,6 +34,7 @@ public class PhaseResolution {
                 resolveMining(state, impactValue, isNaturallyEnded);
                 break;
             case EXPLORATION:
+                resolveExploration(state, impactValue, isNaturallyEnded);
                 break;
             case CONSTRUCTION:
                 break;
@@ -164,6 +165,182 @@ public class PhaseResolution {
         // crime rate and unemployment go up with casualties
         state.crimeRate = Math.clamp(state.crimeRate - (sign * percentAffect) + Math.abs(percentageCasualties), 0, 100);
         state.Unemployment = Math.clamp(state.Unemployment - (sign * percentAffect) + Math.abs(percentageCasualties), 0, 100);
+
+        consequence.clampAll();
+    }
+
+    private void resolveExploration(GameState state, int impact, boolean isNatural){
+        System.out.println("\n=== EXPLORATION RESOLUTION ===\n");
+
+        // state 0: neither fail nor pass
+        if(Math.random() < 0.5){
+            int disappointment = (int)(Math.random() * 2) + 1;  // 1 or 2
+
+            state.faith = Math.clamp(state.faith - disappointment, 0, 100);
+            state.stability = Math.clamp(state.stability - disappointment, 0, 100);
+            state.happiness = Math.clamp(state.happiness - disappointment, 0, 100);
+            state.publicApproval = Math.clamp(state.publicApproval - disappointment, 0, 100);
+
+            consequence.clampAll();
+            return;
+        }
+
+        boolean isVictory = isNatural && (Math.random() < 0.5);
+
+        int constantValue = 100 + (int)(Math.random() * 151);
+        int absoluteImpact = Math.abs(impact);
+        int rawEffect = Math.min((absoluteImpact * constantValue) / 100, LIMIT_VALUE);
+        int percentAffect = (int)(rawEffect * 0.2245);
+
+        if(isVictory){
+            // 75% chance of finding the treasure of the amount 350 to 4500
+            boolean foundTreasure = Math.random() < 0.75;
+            int treasureAmount = 0;
+
+            if(foundTreasure){
+                treasureAmount = 350 + (int)(Math.random() * 4151);
+                state.treasury += treasureAmount;
+
+                // gold 68% chance, only if the treasure is fouond
+                if(Math.random() < 0.68){
+                    int goldAmount = 450 + (int)(Math.random() * 6551);
+                    state.gold += goldAmount;
+                }
+            }
+
+            // if found gold without treasure
+            if(Math.random() < 0.41){
+                int goldAmount = 360 + (int)(Math.random() * 3421);
+                state.gold += goldAmount;
+            }
+
+            // stone 80% chance from 1500 to 9000
+            if(Math.random() < 0.80){
+                int stoneAmount = 1500 + (int)(Math.random() * 7501);
+                state.stone += stoneAmount;
+            }
+
+            // iron 78% chance from 1430 to 8600
+            if(Math.random() < 0.78){
+                int ironAmount = 1430 + (int)(Math.random() * 7171);
+                state.iron += ironAmount;
+            }
+
+            // weapons 61% chance from 200 to 4120
+            if(Math.random() < 0.61){
+                int weaponAmount = 200 + (int)(Math.random() * 3921);
+                state.weapons += weaponAmount;
+
+                // convert weapons into kingdom strength (weapons * 0.2)
+                int bonusStrength = (int)(weaponAmount * 0.2);
+                state.kingdomStrength = Math.clamp(state.kingdomStrength + bonusStrength, 0, 100);
+            }
+
+            // army 74% from 2 to 560
+            if(Math.random() < 0.74){
+                int newSoldiers = 2 + (int)(Math.random() * 559);
+                state.army += newSoldiers;
+
+                // convert new soldiers into kingdom strength
+                int armyStrength = (int)(newSoldiers * 0.15);
+                state.kingdomStrength = Math.clamp(state.kingdomStrength + armyStrength, 0, 100);
+            }
+
+            // population or refuges 40% chance to find
+            int refugeeAmount = 50 + (int)(Math.random() * 200);
+            if(Math.random() < 0.40){
+                state.population += refugeeAmount;
+                if(Math.random() < 0.72){
+                    int combatCasualties = 10 + (int)(Math.random() * 40);
+                    state.army = Math.max(0, state.army - combatCasualties);
+
+                    /*
+                    as the refugees would take shelter due to simple reasons, meaning the resons might be
+                    bandits, climate condition, animal threat and etc this many simple reasons
+                    */
+
+                    // victory rewards from the bandits
+                    int lootGold = 200 + (int)(Math.random()* 600);
+                    int lootIron = 200 + (int)(Math.random()* 300);
+                    int lootWeapons = 200 + (int)(Math.random()* 150);
+
+                    state.gold += lootGold;
+                    state.iron += lootIron;
+                    state.weapons += lootWeapons;
+
+                    // people proud of the heroic act
+                    int heroicBonus = (int)(Math.random() * 0.5);
+                    state.militaryMorale = Math.clamp(state.militaryMorale + heroicBonus, 0, 100);
+                    state.publicApproval = Math.clamp(state.publicApproval + heroicBonus, 0, 100);
+                    state.kingdomReputation = Math.clamp(state.kingdomReputation + heroicBonus, 0, 100);
+                }else{
+                    state.population += refugeeAmount;
+
+                    // small happiness boost
+                    state.happiness = Math.clamp(state.happiness + 2, 0, 100);
+                }
+            }
+
+            // add percentage impacts
+            state.faith = Math.clamp(state.faith + percentAffect, 0, 100);
+            state.stability = Math.clamp(state.stability + percentAffect, 0, 100);
+            state.happiness = Math.clamp(state.happiness + percentAffect, 0, 100);
+            state.publicApproval = Math.clamp(state.publicApproval + percentAffect, 0, 100);
+            state.kingdomReputation = Math.clamp(state.kingdomReputation + percentAffect, 0, 100);
+
+            // reduce crime and uemployment from successful exploration
+            state.crimeRate = Math.max(0, state.crimeRate - percentAffect);
+            state.Unemployment = Math.max(0, state.Unemployment - percentAffect);
+        }else{
+            int penalty = rawEffect;
+            int socialPenalty = percentAffect;
+
+            // casualties are guarrented on early failure, but natural failure can also have them
+            int rawCasualties = 0;
+            int percentageCasualties = 0;
+            if(Math.random() < 0.5){
+                rawCasualties = 50 + (int)(Math.random() * 101);
+                percentageCasualties = (int)(rawCasualties * 0.2245);
+            }
+
+            // 37% chance some return alive;
+            int returningSoldiers = 0;
+            int returningExplorers = 0;
+            if(Math.random() < 0.37){
+                returningSoldiers = (int)(Math.random() * 10);
+                returningExplorers = (int)(Math.random() * 21);
+
+                state.population += returningExplorers;
+                state.army += returningSoldiers;
+            }
+
+            // penalties to all physical resources
+            state.gold = Math.max(0, state.gold - rawCasualties);
+            state.food = Math.max(0, state.food - rawCasualties);
+            state.treasury = Math.max(0, state.treasury - rawCasualties);
+            state.wood = Math.max(0, state.wood - rawCasualties);
+            state.stone = Math.max(0, state.stone - rawCasualties);
+            state.iron = Math.max(0, state.iron - rawCasualties);
+            state.weapons = Math.max(0, state.weapons - rawCasualties);
+
+            // apply casualties
+            state.population = Math.max(0, state.population - rawCasualties);
+            state.army = Math.max(0, state.army - rawCasualties);
+
+            int totalSocialPenalty = socialPenalty + Math.abs(percentageCasualties);
+
+            state.happiness = Math.clamp(state.happiness - totalSocialPenalty, 0, 100);
+            state.faith = Math.clamp(state.faith - totalSocialPenalty, 0, 100);
+            state.stability = Math.clamp(state.stability - totalSocialPenalty, 0, 100);
+            state.publicApproval = Math.clamp(state.publicApproval - totalSocialPenalty, 0, 100);
+            state.militaryMorale = Math.clamp(state.militaryMorale - totalSocialPenalty, 0, 100);
+            state.kingdomStrength = Math.clamp(state.kingdomStrength - totalSocialPenalty, 0, 100);
+            state.kingdomReputation = Math.clamp(state.kingdomReputation - totalSocialPenalty, 0, 100);
+
+            // crime rate and unemployment skipe from defeat
+            state.crimeRate = Math.clamp(state.crimeRate + totalSocialPenalty, 0, 100);
+            state.Unemployment = Math.clamp(state.Unemployment + totalSocialPenalty, 0, 100);
+        }
 
         consequence.clampAll();
     }
