@@ -106,89 +106,64 @@ public class PhaseResolution {
     private void resolveMining(GameState state, int impact, boolean isNatural) {
         engine.animateText("\n=== MINING RESOLUTION ===\n", 25, WIDTH);
 
-        boolean isVictory = isNatural && (Math.random() < 0.5);
+       boolean isVictory = isNatural && (Math.random() < 0.5);
 
-        int constantValue = 70 + (int) (Math.random() * 141);  // 70 to 140
+       int constantValue = 100 + (int)(Math.random() * 151);  // 100 + 252
         int absoluteImpact = Math.abs(impact);
-        int rawAffect = Math.min((constantValue * absoluteImpact) / 100, LIMIT_VALUE);
-        int percentageAffect = (int) (rawAffect * 0.2254); // 22.45%
+        int rawAffect = Math.min((absoluteImpact * constantValue) / 100, LIMIT_VALUE);
+        int percentAffect = (int)(rawAffect * 0.2245);  // 22.45%
 
         int sign = isVictory ? 1 : -1;
-        int finalResourceAffect = sign * rawAffect;
-        int finalSocialAffect = sign * percentageAffect;
 
         int rawCasualties = 0;
         int percentageCasualties = 0;
         boolean hasCasualties = false;
 
-        if (isVictory) {
-            if (Math.random() < 0.35) {
-                hasCasualties = true;
-            }
-        } else {
-            if (Math.random() < 0.65) {
-                hasCasualties = true;
-            }
+        if(isNatural){
+            if(Math.random() < 0.35) hasCasualties = true;
+        }else{
+            hasCasualties = true;
         }
 
         if(hasCasualties){
-            rawCasualties = 40 + (int)(Math.random() * 111); // 40 to 110
+            rawCasualties = 50 + (int)(Math.random() * 101); // 50 to 150
             percentageCasualties = (int)(rawCasualties * 0.2245);
         }
 
         /*
-        If Victory than, casualties eat into the positive impact
-        If Lost than, casualties add into the penalty affect
+        Win = you keep the resources even if people died
+        Loss = resources are lost and casualties are added as penalty
         */
-        if(isVictory){
-            finalResourceAffect -= rawCasualties;
-            finalSocialAffect -= percentageCasualties;
-        }else{
-            finalResourceAffect -= rawCasualties;
-            finalSocialAffect -= percentageCasualties;
-        }
+        int finalResourceAffect = (sign * rawAffect) - (isVictory ? 0 : rawAffect);
 
-        // apply absolute resources
         state.gold = Math.max(0, state.gold + finalResourceAffect);
-        state.population = Math.max(0, state.population + (int)(finalResourceAffect / 3.5));
+        state.iron = Math.max(0, state.iron + finalResourceAffect);
+        state.stone = Math.max(0, state.stone + finalResourceAffect);
 
-        int treasuryChange = 0;
-        if(isVictory && (Math.random() < 0.5)){
-            treasuryChange -= (1 + (int)(Math.random() * 5));
-        }else if(!isVictory && Math.random() < 0.5){
-            treasuryChange -= (1 + (int)(Math.random() * 5));
-        }
+        int treasuryAffect = (int)(finalResourceAffect / 3.62);
+        state.treasury = Math.max(0, state.treasury + treasuryAffect);
 
-        state.treasury = Math.max(0, state.treasury + treasuryChange);
+        // population drops from casualties, but a win can attract new settlers
+        int popChange = (isVictory ? (rawAffect / 4) : 0) - rawCasualties;
+        state.population = Math.max(0, state.population + popChange);
 
-        int armyChange = 0;
-        if(isVictory){
-            armyChange = (int)(rawAffect / 4);
-
-            if(Math.random() < 0.5) armyChange -= (5 + (int)(Math.random() * 10));
-            else armyChange += (5 + (int)(Math.random() * 10));
-        }else{
-            armyChange = (int)(rawAffect / 4);
-            if(Math.random() < 0.5) armyChange -= (5 + (int)(Math.random() * 10));
-        }
-
+        // army loses the by hearing the word, if lose than some might leave, if win then some might join
+        int armyChange = isVictory ? 2 : -2;
         state.army = Math.max(0, state.army + armyChange);
 
-        // percentage stats
-        state.happiness = Math.clamp(state.happiness + finalSocialAffect, 0, 100);
-        state.faith = Math.clamp(state.faith + finalSocialAffect, 0, 100);
-        state.stability = Math.clamp(state.stability + finalSocialAffect, 0, 100);
-        state.publicApproval = Math.clamp(state.publicApproval + finalSocialAffect, 0, 100);
-        state.kingdomStrength = Math.clamp(state.kingdomStrength + finalSocialAffect, 0, 100);
-        state.kingdomReputation = Math.clamp(state.kingdomReputation + finalSocialAffect, 0, 100);
-        state.crimeRate = Math.clamp(state.crimeRate + finalSocialAffect, 0, 100);
-        state.Unemployment = Math.clamp(state.Unemployment + finalSocialAffect, 0, 100);
+        int totalSocialChange = (sign * percentAffect) - Math.abs(percentageCasualties);
 
-        int moraleChange = 0;
-        if(Math.random() < 0.5) moraleChange = isVictory ? 1 : -2;
-        else moraleChange = isVictory ? 2 : -1;
+        state.happiness = Math.clamp(state.happiness + totalSocialChange, 0, 100);
+        state.faith = Math.clamp(state.faith + totalSocialChange, 0, 100);
+        state.stability = Math.clamp(state.stability + totalSocialChange, 0, 100);
+        state.publicApproval = Math.clamp(state.publicApproval + totalSocialChange, 0, 100);
+        state.kingdomReputation = Math.clamp(state.kingdomReputation + totalSocialChange, 0, 100);
+        state.kingdomStrength = Math.clamp(state.kingdomStrength + totalSocialChange, 0, 100);
+        state.militaryMorale = Math.clamp(state.militaryMorale + totalSocialChange, 0, 100);
 
-        state.militaryMorale = Math.clamp(state.militaryMorale + moraleChange, 0, 100);
+        // crime rate and unemployment go up with casualties
+        state.crimeRate = Math.clamp(state.crimeRate - (sign * percentAffect) + Math.abs(percentageCasualties), 0, 100);
+        state.Unemployment = Math.clamp(state.Unemployment - (sign * percentAffect) + Math.abs(percentageCasualties), 0, 100);
 
         consequence.clampAll();
     }
