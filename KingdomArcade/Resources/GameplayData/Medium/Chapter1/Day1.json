@@ -1,0 +1,58 @@
+{
+  "dayEvents": [
+    {
+      "eventId": 1,
+      "eventName": "The Sunken Temple",
+      "description": "The royal cartographers have spotted strange lights beneath the waves near the eastern coast. The court scholars believe it might be the lost Temple of the Deep.",
+      "choices": [
+        {
+          "choiceId": 1,
+          "choiceName": "Send the Royal Divers",
+          "description": "Send an elite team of divers to explore the underwater ruins.",
+          "phaseTrigger": "EXPLORATION",
+          "phaseCost": {
+            "duration": 4,
+            "give": {
+              "food": -100,
+              "gold": -50
+            },
+            "receive": {}
+          },
+          "phaseInfo": {
+            "environment": "MARINE_UNDERWATER",
+            "scenarioDesc": "Diving into the abyssal ruins of the Sunken Temple."
+          }
+        },
+        {
+          "choiceId": 2,
+          "choiceName": "Send the Coastal Scouts",
+          "description": "Keep the team on the surface and search the nearby beaches and cliffs.",
+          "phaseTrigger": "MARINE_COASTAL",
+          "phaseCost": {
+            "duration": 2,
+            "give": {
+              "food": -30,
+              "gold": -10
+            },
+            "receive": {}
+          },
+          "phaseInfo": {
+            "environment": "MARINE_COASTAL",
+            "description": "Patrolling the rocky shores and coastal caves."
+          }
+        },
+        {
+          "choiceId": 3,
+          "choiceName": "Ignore the lights",
+          "description": "It is too risky. The sea is not our domain.",
+          "consequences": {
+            "happinessChange": -2
+          },
+          "phaseTrigger": {},
+          "phaseCost": {},
+          "phaseInfo": {}
+        }
+      ]
+    }
+  ]
+}
