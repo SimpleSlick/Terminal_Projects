@@ -40,6 +40,7 @@ public class PhaseResolution {
                 resolveConstruction(state, impactValue, isNaturallyEnded);
                 break;
             case TRADE:
+                resolveTrade(state, impactValue, isNaturallyEnded);
                 break;
             case DEVELOPMENT:
                 resolveDevelopment(state, impactValue, isNaturallyEnded);
@@ -392,14 +393,14 @@ public class PhaseResolution {
             }
 
             // same effect goes for the population as well
-            if(Math.random() < 0.53){
-                int popLeft = 1 + (int)(Math.random() * 16); // 1 to 15
+            if (Math.random() < 0.53) {
+                int popLeft = 1 + (int) (Math.random() * 16); // 1 to 15
                 state.population = Math.max(state.population - popLeft, 0);
             }
-        }else if(highStat && isVictory){
+        } else if (highStat && isVictory) {
             // if there's a victory than, might some be added
-            if(Math.random() < 0.58){
-                int popJoin = 1 + (int)(Math.random() * 13); // 1 to 12
+            if (Math.random() < 0.58) {
+                int popJoin = 1 + (int) (Math.random() * 13); // 1 to 12
                 state.population = Math.max(state.population + popJoin, 0);
             }
         }
@@ -419,16 +420,16 @@ public class PhaseResolution {
         consequence.clampAll();
     }
 
-    private void resolveDevelopment(GameState state, int impact, boolean isNatural){
+    private void resolveDevelopment(GameState state, int impact, boolean isNatural) {
         System.out.println("\n=== DEVELOPMENT RESOLUTION ===\n");
 
         boolean isVictory = isNatural && (Math.random() < 0.5);
 
-        int constantValue = 100 + (int)(Math.random() * 151); // 100 to 250
+        int constantValue = 100 + (int) (Math.random() * 151); // 100 to 250
         int absoluteImpact = Math.abs(impact);
         int rawEffect = Math.min((constantValue * absoluteImpact) / 100, LIMIT_VALUE);
 
-        int percentageEffect = (int)(rawEffect * 0.2245);
+        int percentageEffect = (int) (rawEffect * 0.2245);
 
         int sign = isVictory ? 1 : -1;
 
@@ -436,31 +437,31 @@ public class PhaseResolution {
 
         boolean highStat = (state.kingdomReputation >= 65 && state.kingdomStrength >= 65);
 
-        if(!highStat){
+        if (!highStat) {
             // if kingdom is weak or hated, people might leave
 
             // 73% percent chance army hear the rumors
-            if(Math.random() < 0.73){
-                int armyLeft = 1 + (int)(Math.random() * 15);
-                int moralReduce = (int)(armyLeft * 0.2);
+            if (Math.random() < 0.73) {
+                int armyLeft = 1 + (int) (Math.random() * 15);
+                int moralReduce = (int) (armyLeft * 0.2);
 
                 state.army = Math.max(0, state.army - armyLeft);
                 state.militaryMorale = Math.clamp(state.militaryMorale - moralReduce, 0, 100);
             }
 
             // 63 % chacne
-            if(Math.random() < 0.63){
-                int popChange = 1 + (int)(Math.random() * 26); // 1 to 25
+            if (Math.random() < 0.63) {
+                int popChange = 1 + (int) (Math.random() * 26); // 1 to 25
                 state.population = Math.max(0, state.population + popChange);
             }
-        }else if(highStat && isVictory){
-            if(Math.random() < 0.68){
-                int popJoin = 1 + (int)(Math.random() * 25);
+        } else if (highStat && isVictory) {
+            if (Math.random() < 0.68) {
+                int popJoin = 1 + (int) (Math.random() * 25);
                 state.population = Math.max(0, state.population + popJoin);
             }
 
-            if(Math.random() < 0.45){
-                int armyJoin = 1 + (int)(Math.random() * 10);
+            if (Math.random() < 0.45) {
+                int armyJoin = 1 + (int) (Math.random() * 10);
                 state.army = Math.max(0, state.army + armyJoin);
             }
         }
@@ -477,6 +478,68 @@ public class PhaseResolution {
         // crime rate and unemployment: if victory go down, if defeat go up
         state.crimeRate = Math.clamp(state.crimeRate - totalSocialChange, 0, 100);
         state.Unemployment = Math.clamp(state.Unemployment - totalSocialChange, 0, 100);
+    }
+
+    private void resolveTrade(GameState state, int impact, boolean isNatural) {
+        System.out.println("\n=== TRADE RESOLUTION ===\n");
+
+        boolean is_rewarding = false;
+
+        if (state.activePhaseCost != null && state.activePhaseCost.containsKey("receive")) {
+            Map<String, Object> recieveMap = (Map<String, Object>) state.activePhaseCost.get("receive");
+
+            if(recieveMap != null){
+                // check if the gold in the recieve map and value greater than 0
+                if(recieveMap.containsKey("gold") && (Integer) recieveMap.get("gold") > 0){
+                    is_rewarding = true;
+                }
+
+                // same for treasury
+                else if(recieveMap.containsKey("treasury") && (Integer) recieveMap.get("treasury") > 0){
+                    is_rewarding = true;
+                }
+            }
+        }
+
+        boolean isVictory = isNatural && (Math.random() < 0.5);
+
+        // base values
+        int constantValue = 100 + (int)(Math.random() * 151); // 100 to 250
+        int absoluteImpact = Math.abs(impact);
+        int rawAffect = Math.min((constantValue * absoluteImpact) / 100, LIMIT_VALUE);
+
+        int percentageAffect = (int)(rawAffect * 0.2761);
+
+        int totalSocialChange = 0;
+        if(isVictory && is_rewarding){
+            // For rewarding trades the social boost is halved
+            totalSocialChange = (int)(percentageAffect * 0.5);
+        }else{
+            totalSocialChange -= percentageAffect;
+        }
+
+        // apply percentage stats
+        state.happiness = Math.clamp(state.happiness + totalSocialChange, 0, 100);
+        state.faith = Math.clamp(state.faith + totalSocialChange, 0, 100);
+        state.stability = Math.clamp(state.stability + totalSocialChange, 0, 100);
+        state.publicApproval = Math.clamp(state.publicApproval + totalSocialChange, 0, 100);
+        state.kingdomReputation = Math.clamp(state.kingdomReputation + totalSocialChange, 0, 100);
+        state.kingdomStrength = Math.clamp(state.kingdomStrength + totalSocialChange, 0, 100);
+        state.militaryMorale = Math.clamp(state.militaryMorale + totalSocialChange, 0, 100);
+
+        // crime rate and unemployment: if victory go down, if defeat go up
+        state.crimeRate = Math.clamp(state.crimeRate - totalSocialChange, 0, 100);
+        state.Unemployment = Math.clamp(state.Unemployment - totalSocialChange, 0, 100);
+
+        // strong kingdom + rewarding trade = Population Growth
+        if(isVictory && is_rewarding && state.kingdomStrength >= 65 && state.kingdomStrength >= 65){
+            if(Math.random() < 0.43){
+                int settlers = 5 + (int)(Math.random() * 15);
+                state.population += settlers;
+            }
+        }
+
+        consequence.clampAll();
     }
 
     private int calculateImpact(double multiplier, int totalDuration, int leftDuration, boolean Natural) {
