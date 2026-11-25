@@ -1,0 +1,19 @@
+package ENUMS;
+
+public enum eventType{
+    FOUND_NOTHING,
+    AMBUSH,
+    TREASURE,
+    GOLD_WITH_TREASURE,
+    SUDDEN_GOLD,
+    STONE,
+    IRON,
+    WEAPONS,
+    ARMY,
+    REFUGEES,
+    POPULATION,
+    AMBUSH_REQUEST,
+    MISSION_FAIL,
+    CASUALTIES_ON_RETURN,
+    RETURNING_ONES
+}
