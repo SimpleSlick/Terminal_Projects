@@ -144,6 +144,8 @@ public class EventManager {
             gameState.phaseDurationLeft = phaseCost.containsKey("duration") ? (Integer) phaseCost.get("duration") : 1;
             gameState.phaseTotalDuration = gameState.phaseDurationLeft;
 
+            gameState.activePhaseInfo = (Map<String, Object>) choiceData.get("phaseInfo");
+
             System.out.println("\n-> [" + phaseName + " Phase started! It will last for " + gameState.phaseDurationLeft + " days.]");
         }
 

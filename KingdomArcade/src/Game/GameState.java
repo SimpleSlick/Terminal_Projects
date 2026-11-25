@@ -34,7 +34,7 @@ public class GameState {
     // Phase
     public ActivityType currentPhase;
     public int phaseDurationLeft = 0, phaseTotalDuration = 0;
-    public Map<String, Object> activePhaseCost = null;
+    public Map<String, Object> activePhaseCost = null, activePhaseInfo = null;
 
     JSONFileReader jsonFileReader = new JSONFileReader();
     protected EnumSet<ConsequenceType> modifiedVariables = EnumSet.noneOf(ConsequenceType.class);
