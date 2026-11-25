@@ -1,19 +1,23 @@
 package Engine;
 
 import Game.GameState;
+import ENUMS.*;
 
 import java.util.Map;
+import java.io.IOException;
 
 public class PhaseResolution {
     private final CalculateConsequence consequence;
     private final Engine engine = new Engine();
     private final int LIMIT_VALUE = 500, WIDTH = 70;
+    private final Report report;
 
     public PhaseResolution(GameState state) {
         this.consequence = new CalculateConsequence(state);
+        this.report = new Report(state);
     }
 
-    public void resolvePhase(GameState state, boolean isNaturallyEnded) {
+    public void resolvePhase(GameState state, boolean isNaturallyEnded) throws IOException{
         Map<String, Object> phaseCost = state.activePhaseCost;
         double multiplier = 1.0;
 
@@ -172,12 +176,16 @@ public class PhaseResolution {
         consequence.clampAll();
     }
 
-    private void resolveExploration(GameState state, int impact, boolean isNatural) {
-        System.out.println("\n=== EXPLORATION RESOLUTION ===\n");
+    private void resolveExploration(GameState state, int impact, boolean isNatural) throws IOException{
+        env environment = env.valueOf((String) state.activePhaseInfo.get("environment"));
+        envType environment_type = envType.valueOf((String) state.activePhaseInfo.get("environment_type"));
+
+        report.addManual("\n=== EXPLORATION REPORT ===\n");
 
         // state 0: neither fail nor pass
         if (Math.random() < 0.5) {
             int disappointment = (int) (Math.random() * 2) + 1;  // 1 or 2
+            report.addReasons_forExploration(environment, environment_type, eventType.valueOf("FOUND_NOTHING"));
 
             state.faith = Math.clamp(state.faith - disappointment, 0, 100);
             state.stability = Math.clamp(state.stability - disappointment, 0, 100);
@@ -195,17 +203,33 @@ public class PhaseResolution {
         int rawEffect = Math.min((absoluteImpact * constantValue) / 100, LIMIT_VALUE);
         int percentAffect = (int) (rawEffect * 0.2245);
 
+        boolean hasAmbush = Math.random() < 0.21;
+        int ambushAffect = 0;
+
+        if(hasAmbush){
+            report.addReasons_forExploration(environment, environment_type,eventType.valueOf("AMBUSH"));
+
+            ambushAffect = 10 + (int)(Math.random() * 40); // 10 to 49 soldiers lost
+            state.army = Math.max(0, state.army - ambushAffect);
+
+            // ambush also reduces the overall impact
+            rawEffect = Math.max(0, rawEffect - ambushAffect);
+        }
+
         if (isVictory) {
             // 75% chance of finding the treasure of the amount 350 to 4500
             boolean foundTreasure = Math.random() < 0.75;
             int treasureAmount = 0;
 
             if (foundTreasure) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("TREASURE"));
+
                 treasureAmount = 350 + (int) (Math.random() * 4151);
                 state.treasury += treasureAmount;
 
                 // gold 68% chance, only if the treasure is found
                 if (Math.random() < 0.68) {
+                    report.addReasons_forExploration(environment, environment_type, eventType.valueOf("GOLD_WITH_TREASURE"));
                     int goldAmount = 450 + (int) (Math.random() * 6551);
                     state.gold += goldAmount;
                 }
@@ -213,24 +237,28 @@ public class PhaseResolution {
 
             // if found gold without treasure
             if (Math.random() < 0.41) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("SUDDEN_GOLD"));
                 int goldAmount = 360 + (int) (Math.random() * 3421);
                 state.gold += goldAmount;
             }
 
             // stone 80% chance from 1500 to 9000
             if (Math.random() < 0.80) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("STONE"));
                 int stoneAmount = 1500 + (int) (Math.random() * 7501);
                 state.stone += stoneAmount;
             }
 
             // iron 78% chance from 1430 to 8600
             if (Math.random() < 0.78) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("IRON"));
                 int ironAmount = 1430 + (int) (Math.random() * 7171);
                 state.iron += ironAmount;
             }
 
             // weapons 61% chance from 200 to 4120
             if (Math.random() < 0.61) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("WEAPONS"));
                 int weaponAmount = 200 + (int) (Math.random() * 3921);
                 state.weapons += weaponAmount;
 
@@ -241,6 +269,7 @@ public class PhaseResolution {
 
             // army 74% from 2 to 560
             if (Math.random() < 0.74) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("ARMY"));
                 int newSoldiers = 2 + (int) (Math.random() * 559);
                 state.army += newSoldiers;
 
@@ -250,10 +279,11 @@ public class PhaseResolution {
             }
 
             // population or refuges 40% chance to find
-            int refugeeAmount = 50 + (int) (Math.random() * 200);
             if (Math.random() < 0.40) {
+            int refugeeAmount = 50 + (int) (Math.random() * 200);
                 state.population += refugeeAmount;
                 if (Math.random() < 0.72) {
+                    report.addReasons_forExploration(environment, environment_type, eventType.valueOf("AMBUSH_REQUEST"));
                     int combatCasualties = 10 + (int) (Math.random() * 40);
                     state.army = Math.max(0, state.army - combatCasualties);
 
@@ -277,6 +307,7 @@ public class PhaseResolution {
                     state.publicApproval = Math.clamp(state.publicApproval + heroicBonus, 0, 100);
                     state.kingdomReputation = Math.clamp(state.kingdomReputation + heroicBonus, 0, 100);
                 } else {
+                    report.addReasons_forExploration(environment, environment_type, eventType.valueOf("REFUGEES"));
                     state.population += refugeeAmount;
 
                     // small happiness boost
@@ -295,6 +326,7 @@ public class PhaseResolution {
             state.crimeRate = Math.max(0, state.crimeRate - percentAffect);
             state.Unemployment = Math.max(0, state.Unemployment - percentAffect);
         } else {
+            report.addReasons_forExploration(environment, environment_type, eventType.valueOf("MISSION_FAIL"));
             int penalty = rawEffect;
             int socialPenalty = percentAffect;
 
@@ -302,6 +334,7 @@ public class PhaseResolution {
             int rawCasualties = 0;
             int percentageCasualties = 0;
             if (Math.random() < 0.5) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("CASUALTIES_ON_RETURN"));
                 rawCasualties = 50 + (int) (Math.random() * 101);
                 percentageCasualties = (int) (rawCasualties * 0.2245);
             }
@@ -310,6 +343,7 @@ public class PhaseResolution {
             int returningSoldiers = 0;
             int returningExplorers = 0;
             if (Math.random() < 0.37) {
+                report.addReasons_forExploration(environment, environment_type, eventType.valueOf("RETURNING_ONES"));
                 returningSoldiers = (int) (Math.random() * 10);
                 returningExplorers = (int) (Math.random() * 21);
 

@@ -27,6 +27,21 @@ public class Report {
         }
     }
 
+    public void addReasons_forExploration(env env, envType type, eventType event) throws IOException{
+        Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/ExplorationReasons.json"));
+
+        Map<String, Object> environmentData = (Map<String, Object>) baseData.get(env.toString());
+
+        Map<String, Object> envTypeData = (Map<String, Object>) environmentData.get(type.toString());
+
+        List<Object> reasons = (List<Object>) envTypeData.get(event.toString());
+
+        int index = randomChoice(reasons);
+        String reason = reasons.get(index).toString();
+
+        sb.append(reason);
+    }
+
     public void addManual(String message){
         sb.append(message);
     }
