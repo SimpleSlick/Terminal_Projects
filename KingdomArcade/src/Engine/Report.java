@@ -31,15 +31,28 @@ public class Report {
         Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/ExplorationReasons.json"));
 
         Map<String, Object> environmentData = (Map<String, Object>) baseData.get(env.toString());
+        if(environmentData == null){
+            addManual("The expedition team explored the area.");
+            return;
+        }
 
         Map<String, Object> envTypeData = (Map<String, Object>) environmentData.get(type.toString());
+        if(envTypeData == null){
+            addManual("The expedition continued its search");
+            return;
+        }
 
         List<Object> reasons = (List<Object>) envTypeData.get(event.toString());
 
         int index = randomChoice(reasons);
+        if(index == -1){
+            addManual("The expedition returned with mixed results");
+            return;
+        }
+
         String reason = reasons.get(index).toString();
 
-        sb.append(reason);
+        sb.append(reason).append("\n");
     }
 
     public void addManual(String message){
