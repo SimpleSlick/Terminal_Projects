@@ -71,6 +71,56 @@ public class Report {
         sb.append(reason).append("\n");
     }
 
+    public void addReasons_forDevelopment(warOutcome outcome, generalReasonType type) throws IOException{
+        Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/DevelopmentReasons.json"));
+
+        Map<String, Object> reasonOutcome = (Map<String, Object>) baseData.get(outcome.toString());
+
+        List<Object> reasons = (List<Object>) reasonOutcome.get(type.toString());
+
+        int index = randomChoice(reasons);
+        String reason = (String) reasons.get(index);
+
+        sb.append(reason).append("\n");
+    }
+
+    public void addReasons_forConstruction(warOutcome outcome, generalReasonType type) throws IOException{
+        Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/ConstructionReasons.json"));
+
+        Map<String, Object> reasonOutcome = (Map<String, Object>) baseData.get(outcome.toString());
+
+        List<Object> reasons = (List<Object>) reasonOutcome.get(type.toString());
+
+        int index = randomChoice(reasons);
+        String reason = (String) reasons.get(index);
+
+        sb.append(reason).append("\n");
+    }
+
+    public void addReasons_forMining(warOutcome outcome, generalReasonType type) throws IOException{
+        Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/MiningReasons.json"));
+
+        Map<String, Object> reasonOutcome = (Map<String, Object>) baseData.get(outcome.toString());
+
+        List<Object> reasons = (List<Object>) reasonOutcome.get(type.toString());
+
+        int index = randomChoice(reasons);
+        String reason = (String) reasons.get(index);
+
+        sb.append(reason).append("\n");
+    }
+
+    public void addReasons_forTrade(warOutcome outcome) throws IOException{
+        Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/TradeReasons.json"));
+
+        List<Object> reasons = (List<Object>) baseData.get(outcome.toString());
+
+        int index = randomChoice(reasons);
+        String reason = (String) reasons.get(index);
+
+        sb.append(reason).append("\n");
+    }
+
     public void addManual(String message){
         sb.append(message);
     }
