@@ -55,11 +55,56 @@ public class Report {
         sb.append(reason).append("\n");
     }
 
+    public void addReasons_forWar(warOutcome outcome, warReasonType reasonType) throws IOException{
+        Map<String, Object> baseData = reader.parse(reader.readFile("Resources/ReportReason/WarReasons.json"));
+
+        Map<String, Object> reasonOutcome = (Map<String, Object>) baseData.get(outcome.toString());
+
+        List<Object> reasons = (List<Object>) reasonOutcome.get(reasonType.toString());
+
+        int index = randomChoice(reasons);
+        if(index == -1){
+            return;
+        }
+
+        String reason = reasons.get(index).toString();
+        sb.append(reason).append("\n");
+    }
+
     public void addManual(String message){
         sb.append(message);
     }
 
+    public void addManual(prefix preMsg,String message){
+        String prefix = getPrefix(preMsg);
+        sb.append(prefix + message);
+    }
+
     public String getReport(){
         return sb.toString();
+    }
+
+    private String getPrefix(prefix msg){
+        switch (msg){
+            case ARMY:
+                return "[ARMY]";
+            case LOOT:
+                return "[LOOT]";
+            case COMBAT:
+                return "[COMBAT]";
+            case DEFEAT:
+                return "[DEFEAT]";
+            case VICTORY:
+                return "[VICTORY]";
+            case TREASURY:
+                return "[TREASURY]";
+            case CASUALTIES:
+                return "[CASUALTIES]";
+            case POPULATION:
+                return "[POPULATION]";
+            case KINGDOM_AFFECT:
+                return "[KINGDOM AFFECT]";
+        }
+        return "";
     }
 }
