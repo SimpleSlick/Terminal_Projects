@@ -6,6 +6,7 @@ import JSON.JSONFileReader;
 import ENUMS.ActivityType;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class GameState {
@@ -190,5 +191,34 @@ public class GameState {
 
         String sign = diff > 0 ? "+" : "";
         return String.format("- %s: %d -> %d (%s%d)\n", statName, oldValue, value, sign, diff);
+    }
+
+    public Map<String, Object> toPhaseMap(){
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("currentPhase", this.currentPhase == null ? "NONE" : currentPhase.name());
+        map.put("phaseDurationLeft", this.phaseDurationLeft);
+        map.put("phaseTotalDuration", this.phaseTotalDuration);
+        map.put("activePhaseCost", this.activePhaseCost == null ? "" : this.activePhaseCost);
+        map.put("activePhaseInfo", this.activePhaseInfo == null ? "" : this.activePhaseInfo);
+
+
+        return map;
+    }
+
+    public void fromPhaseMap(Map<String, Object> map) {
+        if (map == null) {
+            currentPhase = ActivityType.NONE;
+            phaseDurationLeft = 0;
+            phaseTotalDuration = 0;
+            activePhaseCost = null;
+            activePhaseInfo = null;
+            return;
+        }
+        String phase = (String) map.get("currentPhase");
+        currentPhase = phase == null ? ActivityType.NONE : ActivityType.valueOf(phase);
+        phaseDurationLeft = map.get("phaseDurationLeft") == null ? 0 : (Integer) map.get("phaseDurationLeft");
+        phaseTotalDuration = map.get("phaseTotalDuration") == null ? 0 : (Integer) map.get("phaseTotalDuration");
+        activePhaseCost = (Map<String, Object>) map.get("activePhaseCost");
+        activePhaseInfo = (Map<String, Object>) map.get("activePhaseInfo");
     }
 }

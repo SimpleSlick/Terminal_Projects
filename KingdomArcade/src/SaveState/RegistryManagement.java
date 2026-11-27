@@ -12,7 +12,7 @@ public class RegistryManagement {
     private final JSONFileReader reader = new JSONFileReader();
     private final JSONFileWriter writer = new JSONFileWriter();
     private GameState gameState;
-    private final Manager manager = new Manager(gameState);
+    private final Manager manager;
 
     public final int MAX_SLOTS = 10;
 
@@ -20,6 +20,7 @@ public class RegistryManagement {
 
     public RegistryManagement(GameState gameState){
         this.gameState = gameState;
+        this.manager = new Manager(gameState);
     }
 
     private Map<String, Object> readRegistry() throws IOException {
