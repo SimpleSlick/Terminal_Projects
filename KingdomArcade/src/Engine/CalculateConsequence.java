@@ -2,6 +2,7 @@ package Engine;
 
 import java.util.EnumSet;
 
+import ENUMS.ActivityType;
 import ENUMS.ConsequenceType;
 import Game.GameState;
 
@@ -12,7 +13,12 @@ public class CalculateConsequence {
         this.gameState = gameState;
     }
 
+    private double baseMultiplier = 1.0;
+    private double positiveFactor = 1.0;
+    private double negativeFactor = 1.0;
+
     public void calculateImpacts(EnumSet<ConsequenceType> modifiedVariables) {
+        resolveMultiplier();
         for (ConsequenceType variable : modifiedVariables) {
             switch (variable) {
                 case HAPPINESS:
@@ -41,9 +47,65 @@ public class CalculateConsequence {
         clampAll();
     }
 
+    private void resolveMultiplier(){
+        this.baseMultiplier = (gameState.currentPhase != null
+                && gameState.currentPhase != ActivityType.NONE
+                && gameState.activePhaseCost != null
+                && gameState.activePhaseCost.containsKey("multiplier"))
+                ? ((Number) gameState.activePhaseCost.get("multiplier")).doubleValue()
+                : 1.0;
+
+        double pos = 1.0, neg = 1.0;
+
+        switch(gameState.currentPhase){
+            case WAR -> {
+                // Positive = less than usual, Negative = more than usual
+                pos = 0.5;
+                neg = 1.5;
+            }
+            case TRADE -> {
+                // Reverse of WAR
+                pos = 1.5;
+                neg = 0.5;
+            }
+            case CONSTRUCTION -> {
+                // Half of WAR's effect
+                // WAR: 0.5 / 1.5  ->  CONSTRUCTION: 0.75 / 1.25
+                pos = 0.75;
+                neg = 1.25;
+            }
+            case MINING, EXPLORATION -> {
+                // Moderate - almost normal, slight boost to positives
+                pos = 1.15;
+                neg = 0.9;
+            }
+            case DEVELOPMENT -> {
+                pos = 1.2;
+                neg = 0.85;
+            }
+            case NONE -> {
+                pos = 1.0;
+                neg = 1.0;
+            }
+        }
+
+        this.positiveFactor = baseMultiplier * pos;
+        this.negativeFactor = baseMultiplier * neg;
+    }
+
+    private int scale(int diff){
+        if(diff > 0) return (int) Math.round(diff * positiveFactor);
+        if(diff < 0) return (int) Math.round(diff * negativeFactor);
+        return 0;
+    }
+
+    private int scaleHalf(int diff){
+        return scale(diff) / 2;
+    }
+
     // Rule1: Happiness affects Faith, Stability, Public Approval, Reputation
     private void rule1_SocialImpact() {
-        int diff = gameState.happiness - gameState.oldHappiness;
+        int diff = scale(gameState.happiness - gameState.oldHappiness);
 
         if (diff > 0) {
             gameState.faith += Math.max(1, diff / 2);
@@ -54,15 +116,15 @@ public class CalculateConsequence {
             int penalty = Math.abs(diff);
             gameState.faith -= Math.max(1, penalty / 2);
             gameState.stability -= penalty;
-            gameState.publicApproval += Math.max(1, penalty);
+            gameState.publicApproval -= Math.max(1, penalty);
             gameState.kingdomReputation -= Math.max(1, penalty / 2);
         }
     }
 
     // Rule2: Army/Weapons change affects Military Morale, Kingdom Strength, Faith, Stability, Reputation
     private void rule2_MilitaryImpact(){
-        int armyDiff = gameState.army - gameState.oldArmy;
-        int weaponsDiff = gameState.weapons - gameState.oldWeapons;
+        int armyDiff = scale(gameState.army - gameState.oldArmy);
+        int weaponsDiff = scale(gameState.weapons - gameState.oldWeapons);
 
         if (armyDiff > 0 || weaponsDiff > 0) {
             // Building Military
@@ -80,7 +142,7 @@ public class CalculateConsequence {
 
     // Rule3: Population change affect Faith, Stability, Crime, Unemployment, Approval, Reputation
     private void rule3_PopulationImpact(){
-        int populationDiff = gameState.population - gameState.oldPopulation;
+        int populationDiff = scale(gameState.population - gameState.oldPopulation);
 
         if(populationDiff > 0){
             // Population boom
@@ -99,8 +161,8 @@ public class CalculateConsequence {
 
     // Rule5: Gold/Food changes affect Army, Morale, Stability, Faith, Reputation, Strength
     private void rule5_EconomicImpact(){
-        int foodDiff = gameState.food - gameState.oldFood;
-        int goldDiff = gameState.gold - gameState.oldGold;
+        int foodDiff = scale(gameState.food - gameState.oldFood);
+        int goldDiff = scale(gameState.gold - gameState.oldGold);
 
         // if food drops below population, starvation occurs
         if(gameState.food < (gameState.population / 2)){
@@ -126,9 +188,9 @@ public class CalculateConsequence {
 
     // Rule6: Resources (Wood, Stone, Iron) affect Stability, Reputation, Population (Calculated via unemployment)
     private void rule6_ResourceImpact() {
-        int woodDiff = gameState.wood - gameState.oldWood;
-        int stoneDiff = gameState.stone - gameState.oldStone;
-        int ironDiff = gameState.iron - gameState.oldIron;
+        int woodDiff = scale(gameState.wood - gameState.oldWood);
+        int stoneDiff = scale(gameState.stone - gameState.oldStone);
+        int ironDiff = scale(gameState.iron - gameState.oldIron);
 
         int totalResourceDiff = woodDiff + stoneDiff + ironDiff;
 
