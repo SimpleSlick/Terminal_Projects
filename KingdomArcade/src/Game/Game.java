@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.Scanner;
 import SaveState.RegistryManagement;
 import ENUMS.slotOperation;
+import Court.KingdomCourt;
 
 public class Game {
     GameState gameState = new GameState();
     Scanner scanner = new Scanner(System.in);
     RegistryManagement management = new RegistryManagement(gameState);
+    KingdomCourt court = new KingdomCourt(gameState);
 
     public Game() throws IOException {
         mainMenu();
@@ -90,6 +92,10 @@ public class Game {
                 gameState.assignValues();
                 break;
         }
+
+        // always display this at the start of the game
+        court.kingdomDisplay();
+        court.startGame();
     }
 
     private void continueGame() throws IOException{
@@ -130,6 +136,8 @@ public class Game {
         switch (choice){
             case 1:
                 management.handleSlot(slotNumber, slotOperation.LOAD);
+                // after loading from the saved files, use this function to begin the game
+                court.kingdomDisplay();
                 break;
             case 2:
                 management.handleSlot(slotNumber, slotOperation.SAVE);

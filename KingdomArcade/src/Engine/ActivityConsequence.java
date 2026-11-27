@@ -1,10 +1,10 @@
 package Engine;
 
+import java.io.IOException;
 import java.util.Map;
 
 import ENUMS.ActivityType;
 import Game.GameState;
-import Court.EventManager;
 
 public class ActivityConsequence {
     private CalculateConsequence consequence;
@@ -16,7 +16,7 @@ public class ActivityConsequence {
     }
 
     // call everytime before starting the new day
-    public void applyDailyPhase(GameState gameState) {
+    public void applyDailyPhase(GameState gameState) throws IOException {
         if (gameState.currentPhase == null || gameState.currentPhase == ActivityType.NONE || gameState.activePhaseCost == null)
             return;
 
@@ -60,7 +60,7 @@ public class ActivityConsequence {
         engine.animateText(gameState.Consequence(true), 30, WIDTH);
     }
 
-    private void DailyWarRequirements(GameState state) {
+    private void DailyWarRequirements(GameState state) throws IOException {
         Map<String, Object> giveMap = (Map<String, Object>) state.activePhaseCost.get("give");
         // Daily cost of war
         int costFood = giveMap.containsKey("food") ? Math.abs((Integer) giveMap.get("food")) : 150;
@@ -167,7 +167,7 @@ public class ActivityConsequence {
         consequence.clampAll();
     }
 
-    private void handleDailyConstructionCost(GameState state) {
+    private void handleDailyConstructionCost(GameState state) throws IOException {
         Map<String, Object> giveMap = (Map<String, Object>) state.activePhaseCost.get("give");
 
         // daily Cost of construction
@@ -260,7 +260,7 @@ public class ActivityConsequence {
         consequence.clampAll();
     }
 
-    private void handleDailyMiningCost(GameState state) {
+    private void handleDailyMiningCost(GameState state) throws IOException {
         Map<String, Object> giveMap = (Map<String, Object>) state.activePhaseCost.get("give");
         // daily Cost of mining
         int costWood = giveMap.containsKey("wood") ? Math.abs((Integer) giveMap.get("wood")) : 150;
@@ -359,7 +359,7 @@ public class ActivityConsequence {
         consequence.clampAll();
     }
 
-    private void handleExplorationDaily(GameState state) {
+    private void handleExplorationDaily(GameState state) throws IOException {
         Map<String, Object> giveMap = (Map<String, Object>) state.activePhaseCost.get("give");
 
         // daily cost of exploration
@@ -471,7 +471,7 @@ public class ActivityConsequence {
         consequence.clampAll();
     }
 
-    private void handleDailyTrade(GameState state) {
+    private void handleDailyTrade(GameState state) throws IOException {
         Map<String, Object> giveMap = (Map<String, Object>) state.activePhaseCost.get("give");
         Map<String, Object> recieveMap = (Map<String, Object>) state.activePhaseCost.get("receive");
 
@@ -509,7 +509,7 @@ public class ActivityConsequence {
         consequence.clampAll();
     }
 
-    private void handleDailyDevelopmentCost(GameState state) {
+    private void handleDailyDevelopmentCost(GameState state) throws IOException {
         Map<String, Object> giveMap = (Map<String, Object>) state.activePhaseCost.get("give");
 
         // daily cost of development
@@ -630,7 +630,7 @@ public class ActivityConsequence {
             }
         }
 
-        private void resolveAndEndPhase(GameState state, boolean Natural){
+        private void resolveAndEndPhase(GameState state, boolean Natural) throws IOException {
             new PhaseResolution(state).resolvePhase(state, Natural);
 
             state.activePhaseCost = null;

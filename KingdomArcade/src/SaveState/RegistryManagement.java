@@ -95,7 +95,8 @@ public class RegistryManagement {
         }
 
         if(Boolean.TRUE.equals(selectedData.get("occupied"))){
-            System.out.println("The slot is occupied");
+            System.out.println("The slot is occupied. Overwrite? (y/n): ");
+            System.out.println("Overwriting Slot " + slot + "...");
             return;
         }
 

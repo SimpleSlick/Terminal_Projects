@@ -100,7 +100,7 @@ public class EventManager {
 
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
-
+                scanner.nextLine();
                 if (choice >= 1 && choice <= total_choice) {
                     gameState.decisionMade += 1;
                     return choice;
